@@ -11,15 +11,15 @@ of this README. Please refer to the Kubernetes and Helm documentation.
 
 The versions required are:
 
--   **Helm 3.0+** - This is the earliest version of Helm tested. It is possible
+  * **Helm 3.0+** - This is the earliest version of Helm tested. It is possible
     it works with earlier versions but this chart is untested for those versions.
--   **Kubernetes 1.20+** - This is the earliest version of Kubernetes tested.
+  * **Kubernetes 1.20+** - This is the earliest version of Kubernetes tested.
     It is possible that this chart works with earlier versions but it is
     untested.
 
 In addition to Helm, you must also have a:
 
--   **Admiral Token**
+  * **Admiral Token**
 
 ## Usage
 
@@ -46,29 +46,29 @@ helm upgrade admiral-controller admiral/admiral-controller --reuse-values
 
 ### General parameters
 
-| Key                        | Type   | Default                                   | Description |
-| -------------------------- | ------ | ----------------------------------------- | ----------- |
-| affinity                   | object | `{}`                                      |             |
-| config                     | object | `{}`                                      |             |
-| fullnameOverride           | string | `""`                                      |             |
-| image.pullPolicy           | string | `"IfNotPresent"`                          |             |
-| image.repository           | string | `"ghcr.io/mberwanger/admiral-controller"` |             |
-| image.tag                  | string | `""`                                      |             |
-| imagePullSecrets           | list   | `[]`                                      |             |
-| nameOverride               | string | `""`                                      |             |
-| nodeSelector               | object | `{}`                                      |             |
-| podAnnotations             | object | `{}`                                      |             |
-| podLabels                  | object | `{}`                                      |             |
-| podSecurityContext         | object | `{}`                                      |             |
-| replicaCount               | int    | `1`                                       |             |
-| resources                  | object | `{}`                                      |             |
-| securityContext            | object | `{}`                                      |             |
-| service.port               | int    | `80`                                      |             |
-| service.type               | string | `"ClusterIP"`                             |             |
-| serviceAccount.annotations | object | `{}`                                      |             |
-| serviceAccount.automount   | bool   | `true`                                    |             |
-| serviceAccount.create      | bool   | `true`                                    |             |
-| serviceAccount.name        | string | `""`                                      |             |
-| tolerations                | list   | `[]`                                      |             |
-| volumeMounts               | list   | `[]`                                      |             |
-| volumes                    | list   | `[]`                                      |             |
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| affinity | object | `{}` |  |
+| config | object | `{}` |  |
+| fullnameOverride | string | `""` |  |
+| image.pullPolicy | string | `"IfNotPresent"` |  |
+| image.repository | string | `"ghcr.io/mberwanger/admiral-controller"` |  |
+| image.tag | string | `""` |  |
+| imagePullSecrets | list | `[]` |  |
+| nameOverride | string | `""` |  |
+| nodeSelector | object | `{}` |  |
+| podAnnotations | object | `{}` |  |
+| podLabels | object | `{}` |  |
+| podSecurityContext | object | `{}` |  |
+| replicaCount | int | `1` |  |
+| resources | object | `{}` |  |
+| securityContext | object | `{}` |  |
+| service.port | int | `80` |  |
+| service.type | string | `"ClusterIP"` |  |
+| serviceAccount.annotations | object | `{}` |  |
+| serviceAccount.automount | bool | `true` |  |
+| serviceAccount.create | bool | `true` |  |
+| serviceAccount.name | string | `""` |  |
+| tolerations | list | `[]` |  |
+| volumeMounts | list | `[]` |  |
+| volumes | list | `[]` |  |
