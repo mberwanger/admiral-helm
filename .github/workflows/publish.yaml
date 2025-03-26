@@ -5,8 +5,8 @@ on:
   push:
     branches:
       - master
-    # paths:
-    #   - "charts/**"
+    paths:
+      - "charts/**"
 
 permissions:
   contents: read

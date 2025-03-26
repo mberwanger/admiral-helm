@@ -1,6 +1,6 @@
 apiVersion: v2
 name: admiral-controller
-description: Official Helm chart for Admiral controller
+description: Official Helm chart for Admiral Controller
 type: application
 version: 0.1.0
 appVersion: "0.1.0"
