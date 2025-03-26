@@ -1,0 +1,49 @@
+apiVersion: v1
+entries:
+  admiral-controller:
+  - annotations:
+      artifacthub.io/category: integration-delivery
+    apiVersion: v2
+    appVersion: 0.1.0
+    created: "2025-03-26T00:07:33.709350538Z"
+    description: Official Helm chart for Admiral controller
+    digest: d10d25c7a99a850b687679d76ca50c64f86c7fb79f9ef796bfd6e8d5a6cde6b2
+    home: https://admiral.io
+    keywords:
+    - admiral
+    - admiral-controller
+    kubeVersion: '>= 1.20.0-0'
+    maintainers:
+    - name: Martin H Berwanger
+      url: https://github.com/mberwanger
+    name: admiral-controller
+    sources:
+    - https://github.com/mberwanger/admiral-helm
+    type: application
+    urls:
+    - https://github.com/mberwanger/admiral-helm/releases/download/admiral-controller-0.1.0/admiral-controller-0.1.0.tgz
+    version: 0.1.0
+  admiral-server:
+  - annotations:
+      artifacthub.io/category: integration-delivery
+    apiVersion: v2
+    appVersion: 0.1.0
+    created: "2025-03-26T00:07:33.8197972Z"
+    description: Official Helm chart for Admiral Server
+    digest: 9310d7be16c5c175bdf326ea910ca667bbee456a037a763e2ce628fe8cf42f1e
+    home: https://admiral.io
+    keywords:
+    - admiral
+    - admiral-server
+    kubeVersion: '>= 1.20.0-0'
+    maintainers:
+    - name: Martin H Berwanger
+      url: https://github.com/mberwanger
+    name: admiral-server
+    sources:
+    - https://github.com/mberwanger/admiral-helm
+    type: application
+    urls:
+    - https://github.com/mberwanger/admiral-helm/releases/download/admiral-server-0.1.0/admiral-server-0.1.0.tgz
+    version: 0.1.0
+generated: "2025-03-26T00:07:33.81980246Z"
