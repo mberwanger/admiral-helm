@@ -1,0 +1,24 @@
+apiVersion: v2
+name: admiral-controller
+description: Official Helm chart for Admiral Controller
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+# We want Kube 1.20+ so that on-demand runners can be cleaned up properly.
+# This uses the Job expiration fields that was introduced in 1.20. Without
+# this, thousands of dead pods will pollute the Kubernetes server.
+#
+# IMPORTANT: the "-0" suffix on here is necessary for EKS and GKE to validate
+# since they use a modified version of Kubernetes.
+kubeVersion: ">= 1.20.0-0"
+home: https://admiral.io
+keywords:
+- admiral
+- admiral-controller
+sources:
+- https://github.com/mberwanger/admiral-helm
+maintainers:
+- name: Martin H Berwanger
+  url: https://github.com/mberwanger
+annotations:
+  artifacthub.io/category: integration-delivery
