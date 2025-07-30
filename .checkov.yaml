@@ -1,5 +1,6 @@
 skip-path:
   - charts/admiral-server/ci/test-values.yaml
   - charts/admiral-server/templates/tests/test-connection.yaml
+  - charts/admiral-server/templates/tests/test-healthcheck.yaml
   - charts/admiral-controller/ci/test-values.yaml
   - charts/admiral-worker/ci/test-values.yaml
