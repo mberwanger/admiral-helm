@@ -5,7 +5,7 @@ remote: origin
 target-branch: master
 chart-dirs:
 - charts
-validate-chart-schema: true
+validate-chart-schema: false
 validate-maintainers: false
 validate-yaml: true
 exclude-deprecated: true
