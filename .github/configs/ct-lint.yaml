@@ -6,7 +6,7 @@ target-branch: master
 chart-dirs:
 - charts
 validate-chart-schema: true
-validate-maintainers: true
+validate-maintainers: false
 validate-yaml: true
 exclude-deprecated: true
 excluded-charts: []

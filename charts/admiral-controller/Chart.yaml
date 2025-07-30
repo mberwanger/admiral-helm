@@ -19,6 +19,6 @@ sources:
 - https://github.com/mberwanger/admiral-helm
 maintainers:
 - name: Martin H Berwanger
-  url: https://github.com/mberwanger
+  email: martin@example.com
 annotations:
   artifacthub.io/category: integration-delivery
