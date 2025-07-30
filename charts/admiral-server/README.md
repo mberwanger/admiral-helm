@@ -289,7 +289,7 @@ https://admiral.io
 
 | Name | Email | Url |
 | ---- | ------ | --- |
-| Martin H Berwanger |  | <https://github.com/mberwanger> |
+| mberwanger | <mberwanger@protonmail.com> |  |
 
 ## Source Code
 
