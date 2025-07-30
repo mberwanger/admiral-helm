@@ -60,7 +60,7 @@ jobs:
           helm template ${{ matrix.chart }} ./charts/${{ matrix.chart }} > ${{ matrix.chart }}-rendered.yaml
 
       - name: Run Kubesec scan
-        uses: controlplaneio/kubesec-action@3c83cf87c567630ed3c3dfd6e4f6b13d0cc0bf14 # v0.0.2
+        uses: controlplaneio/kubesec-action@v0.0.2
         with:
           input: ${{ matrix.chart }}-rendered.yaml
 
