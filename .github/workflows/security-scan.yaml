@@ -32,7 +32,13 @@ jobs:
           output_format: sarif
           output_file_path: checkov-results.sarif
           soft_fail: true
-          skip_path: charts/*/templates,charts/*/ci
+          skip_path: |
+            charts/admiral-server/templates
+            charts/admiral-controller/templates
+            charts/admiral-worker/templates
+            charts/admiral-server/ci
+            charts/admiral-controller/ci
+            charts/admiral-worker/ci
 
       - name: Upload SARIF results
         if: always()
