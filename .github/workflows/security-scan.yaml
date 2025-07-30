@@ -25,7 +25,7 @@ jobs:
 
       - name: Run Checkov against charts
         id: checkov
-        uses: bridgecrewio/checkov-action@v12.2828.0 # v12.2828.0
+        uses: bridgecrewio/checkov-action@v12
         with:
           directory: charts/
           framework: helm
@@ -76,14 +76,50 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Run Trivy in config mode
-        uses: aquasecurity/trivy-action@0.28.0 # v0.28.0
+      - name: Setup Helm
+        uses: azure/setup-helm@b9e51907a09c216f16ebe8536097933489208112 # v4.3.0
+
+      - name: Create values file for rendering
+        run: |
+          # Create minimal values to satisfy schema validation
+          if [ "${{ matrix.chart }}" = "admiral-server" ]; then
+            cat > test-values.yaml <<EOF
+          admiral:
+            config:
+              database:
+                host: "postgres.example.com"
+                user: "admiral"
+                password: "test-password"
+              auth:
+                oidcIssuer: "https://auth.example.com"
+                oidcClientId: "admiral-client"
+                oidcClientSecret: "test-secret"
+                sessionSecret: "test-session-secret"
+              storage:
+                manifestsBucket: "admiral-manifests"
+                revisionsBucket: "admiral-revisions"
+              temporal:
+                hostPort: "temporal.example.com:7233"
+          EOF
+          else
+            # admiral-controller doesn't need special values
+            echo "{}" > test-values.yaml
+          fi
+
+      - name: Template Helm chart for scanning
+        run: |
+          helm template ${{ matrix.chart }} ./charts/${{ matrix.chart }} \
+            -f test-values.yaml > ${{ matrix.chart }}-rendered.yaml
+
+      - name: Run Trivy on rendered manifests
+        uses: aquasecurity/trivy-action@0.32.0
         with:
           scan-type: config
-          scan-ref: charts/${{ matrix.chart }}
+          input: ${{ matrix.chart }}-rendered.yaml
           format: sarif
           output: trivy-${{ matrix.chart }}.sarif
           severity: MEDIUM,HIGH,CRITICAL
+          exit-code: 0
 
       - name: Upload Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@4e828ff8d448a8a6e532957b1811f387a63867e8 # v3.29.4
