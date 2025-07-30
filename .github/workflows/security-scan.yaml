@@ -23,7 +23,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Run Checkov against charts (excluding Helm templates)
+      - name: Run Checkov against charts
         id: checkov
         uses: bridgecrewio/checkov-action@v12
         with:
@@ -33,9 +33,6 @@ jobs:
           output_file_path: checkov-results.sarif
           soft_fail: true
           skip_path: |
-            charts/admiral-server/templates
-            charts/admiral-controller/templates
-            charts/admiral-worker/templates
             charts/admiral-server/ci
             charts/admiral-controller/ci
             charts/admiral-worker/ci
