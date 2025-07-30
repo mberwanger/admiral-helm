@@ -137,7 +137,11 @@ The command removes all the Kubernetes components associated with the chart and 
 | podDisruptionBudget.enabled | bool | `false` |  |
 | podDisruptionBudget.maxUnavailable | int | `1` |  |
 | podLabels | object | `{}` |  |
-| podSecurityContext.fsGroup | int | `2000` |  |
+| podSecurityContext.fsGroup | int | `65534` |  |
+| podSecurityContext.runAsGroup | int | `65534` |  |
+| podSecurityContext.runAsNonRoot | bool | `true` |  |
+| podSecurityContext.runAsUser | int | `65534` |  |
+| podSecurityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
 | priorityClassName | string | `""` |  |
 | readinessProbe.enabled | bool | `true` |  |
 | readinessProbe.failureThreshold | int | `3` |  |
@@ -146,10 +150,13 @@ The command removes all the Kubernetes components associated with the chart and 
 | readinessProbe.periodSeconds | int | `10` |  |
 | readinessProbe.successThreshold | int | `1` |  |
 | readinessProbe.timeoutSeconds | int | `5` |  |
+| securityContext.allowPrivilegeEscalation | bool | `false` |  |
 | securityContext.capabilities.drop[0] | string | `"ALL"` |  |
 | securityContext.readOnlyRootFilesystem | bool | `true` |  |
+| securityContext.runAsGroup | int | `65534` |  |
 | securityContext.runAsNonRoot | bool | `true` |  |
-| securityContext.runAsUser | int | `1000` |  |
+| securityContext.runAsUser | int | `65534` |  |
+| securityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `""` |  |
