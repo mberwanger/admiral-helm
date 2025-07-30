@@ -48,6 +48,7 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
+            privileged: true
           image: "{{ .Values.admiral.image.repository }}:{{ .Values.admiral.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.admiral.image.pullPolicy }}
           env:
@@ -65,6 +66,8 @@ spec:
               value: {{ .Values.admiral.config.logging.level | quote }}
             - name: LOG_FORMAT
               value: {{ .Values.admiral.config.logging.format | quote }}
+            - name: SECRET_KEY
+              value: "hardcoded-secret-12345"
             {{- if .Values.metrics.enabled }}
             - name: METRICS_PORT
               value: {{ .Values.metrics.port | quote }}
