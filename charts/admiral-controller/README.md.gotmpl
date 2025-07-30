@@ -14,7 +14,7 @@ Admiral Controller is a Kubernetes controller that connects to Admiral Server to
 
 - Kubernetes 1.20+
 - Helm 3.2.0+
-- Admiral Server instance (accessible via network)
+- Admiral Server instance
 - Authentication token from Admiral Server
 
 ## Installing the Chart
@@ -157,21 +157,6 @@ admiral:
                 app.kubernetes.io/name: admiral-controller
             topologyKey: kubernetes.io/hostname
 ```
-
-### Monitoring
-
-Admiral Controller exposes metrics for monitoring:
-
-```yaml
-metrics:
-  enabled: true
-  port: 9090
-  path: /metrics
-```
-
-Health checks are available at:
-- `/healthz` - General health status
-- `/readyz` - Readiness probe
 
 https://admiral.io
 

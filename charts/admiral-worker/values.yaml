@@ -1,0 +1,172 @@
+# Default values for admiral-worker
+# This is a YAML-formatted file.
+
+# Admiral worker configuration
+admiral:
+  # image configuration for Admiral worker
+  image:
+    # repository is the Admiral worker image repository
+    repository: ghcr.io/mberwanger/admiral-worker
+    # tag is the Admiral worker image tag (avoid 'latest' for production)
+    tag: "v0.1.0"
+    # pullPolicy is the image pull policy
+    pullPolicy: IfNotPresent
+
+  # imagePullSecrets for private registries
+  imagePullSecrets: []
+
+  # replicaCount is the number of Admiral worker replicas
+  replicaCount: 1
+
+  # Application configuration
+  config:
+    # Temporal server configuration (REQUIRED)
+    temporal:
+      # hostPort is the Temporal server address (REQUIRED)
+      hostPort: ""  # Example: "temporal-server.namespace.svc.cluster.local:7233"
+      # namespace is the Temporal namespace
+      namespace: "admiral"
+
+    # Worker configuration
+    worker:
+      # role defines the type of work this worker processes (REQUIRED)
+      role: ""  # Example: "foo" or "bar"
+      # namespace is the Kubernetes namespace where workloads will be created
+      namespace: "default"
+      # concurrency is the number of concurrent workers
+      concurrency: 5
+
+    # Logging
+    logging:
+      level: "info"
+      format: "json"
+
+  # resources configuration for Admiral worker pods
+  resources:
+    # limits define maximum resource usage
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    # requests define guaranteed resource allocation
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+  # nodeSelector for pod assignment
+  nodeSelector: {}
+  # tolerations for pod assignment
+  tolerations: []
+  # affinity for pod assignment
+  affinity: {}
+
+# ServiceAccount configuration
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+# Pod Security Context
+podSecurityContext:
+  fsGroup: 65534
+  runAsNonRoot: true
+  runAsUser: 65534
+  runAsGroup: 65534
+  seccompProfile:
+    type: RuntimeDefault
+
+# Security Context
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 65534
+  runAsGroup: 65534
+  seccompProfile:
+    type: RuntimeDefault
+
+# Health Probes
+livenessProbe:
+  enabled: true
+  path: /healthz
+  initialDelaySeconds: 30
+  periodSeconds: 30
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 3
+
+readinessProbe:
+  enabled: true
+  path: /readyz
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 3
+
+startupProbe:
+  enabled: true
+  path: /healthz
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 30
+
+# Metrics and monitoring
+metrics:
+  enabled: true
+  port: 9090
+  path: /metrics
+
+# RBAC configuration
+rbac:
+  # create specifies whether RBAC resources should be created
+  create: true
+  # rules define the RBAC rules for the worker
+  rules:
+    - apiGroups: [""]
+      resources: ["pods", "services", "configmaps", "secrets"]
+      verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+    - apiGroups: ["apps"]
+      resources: ["deployments", "replicasets"]
+      verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+    - apiGroups: ["batch"]
+      resources: ["jobs", "cronjobs"]
+      verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+# Network Policy
+networkPolicy:
+  enabled: false
+  ingress:
+    namespaceSelector: {}
+    podSelector: {}
+    customRules: []
+  egress:
+    customRules: []
+
+# Pod Disruption Budget
+podDisruptionBudget:
+  enabled: false
+  # minAvailable: 1
+  maxUnavailable: 1
+
+# Additional configurations
+podAnnotations: {}
+podLabels: {}
+priorityClassName: ""
+initContainers: []
+sidecars: []
+extraEnvVars: []
+extraVolumes: []
+extraVolumeMounts: []
+extraManifests: []
+
+# Common labels and annotations
+commonLabels: {}
+commonAnnotations: {}
+
+# Global values (for sub-charts compatibility)
+global: {}

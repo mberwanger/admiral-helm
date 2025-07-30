@@ -1,6 +1,6 @@
 apiVersion: v2
-name: admiral-controller
-description: Official Helm chart for Admiral Controller
+name: admiral-worker
+description: Official Helm chart for Admiral Worker
 type: application
 version: 0.1.0
 appVersion: "v0.1.0"
@@ -12,11 +12,10 @@ kubeVersion: ">= 1.20.0-0"
 home: https://admiral.io
 keywords:
   - admiral
-  - admiral-controller
+  - admiral-worker
   - kubernetes
-  - controller
+  - worker
   - automation
-  - deployment
 
 sources:
   - https://github.com/mberwanger/admiral
@@ -30,7 +29,7 @@ maintainers:
 annotations:
   artifacthub.io/category: integration-delivery
   artifacthub.io/operator: "false"
-  artifacthub.io/displayName: Admiral Controller
+  artifacthub.io/displayName: Admiral Worker
   artifacthub.io/license: MIT
   artifacthub.io/links: |
     - name: Admiral Documentation
@@ -41,14 +40,15 @@ annotations:
     - name: mberwanger
       email: mberwanger@protonmail.com
   artifacthub.io/readme: |
-    # Admiral Controller
+    # Admiral Worker
 
-    Admiral Controller is a Kubernetes controller that connects to Admiral Server to execute workloads.
+    Admiral Worker is a Kubernetes worker that connects to Temporal server to process long-running workflows like Terraform plan/apply operations.
 
     ## Features
 
-    - Secure connection to Admiral Server with authentication tokens
-    - RBAC-enabled Kubernetes workload management
+    - Secure connection to Temporal server
+    - Long-running workflow processing
+    - Role-based work distribution
     - Comprehensive health monitoring and metrics
     - Production-ready security defaults
 
@@ -56,7 +56,7 @@ annotations:
 
     ```bash
     helm repo add admiral https://charts.admiral.io
-    helm install my-controller admiral/admiral-controller \
-      --set admiral.config.server.hostPort="admiral-server:8080" \
-      --set admiral.config.server.authToken="your-auth-token"
+    helm install my-worker admiral/admiral-worker \
+      --set admiral.config.temporal.hostPort="temporal-server:7233" \
+      --set admiral.config.worker.role="foo"
     ```

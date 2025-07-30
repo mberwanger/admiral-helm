@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "type": "object",
+  "properties": {
+    "admiral": {
+      "type": "object",
+      "properties": {
+        "config": {
+          "type": "object",
+          "properties": {
+            "temporal": {
+              "type": "object",
+              "properties": {
+                "hostPort": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Temporal server host and port (required)"
+                },
+                "namespace": {
+                  "type": "string",
+                  "description": "Temporal namespace"
+                }
+              },
+              "required": ["hostPort"]
+            },
+            "worker": {
+              "type": "object",
+              "properties": {
+                "role": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Worker role for processing specific types of work (required)"
+                },
+                "namespace": {
+                  "type": "string",
+                  "description": "Kubernetes namespace for workloads"
+                },
+                "concurrency": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "Number of concurrent workers"
+                }
+              },
+              "required": ["role"]
+            }
+          },
+          "required": ["temporal", "worker"]
+        }
+      },
+      "required": ["config"]
+    }
+  },
+  "required": ["admiral"]
+}
