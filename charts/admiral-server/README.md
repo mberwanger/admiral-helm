@@ -239,10 +239,9 @@ This chart includes `values.schema.json` to validate required configuration fiel
 ### Security Context
 
 The chart runs with a restrictive security context by default:
-- Non-root user (UID 65534)
+- Non-root user (UID 1000)
 - Read-only root filesystem
-- Dropped ALL capabilities
-- Seccomp profiles enabled
+- Dropped capabilities
 
 ### Resource Management
 
