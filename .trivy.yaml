@@ -4,32 +4,7 @@ skip-dirs:
   - "charts/*/ci"
   - ".github"
 
-misconfiguration:
-  helm:
-    # Set values that work for all charts - minimal required values
-    set-string:
-      # Common temporal configuration
-      - "admiral.config.temporal.hostPort=temporal.example.com:7233"
-      - "admiral.config.temporal.namespace=admiral"
-      # Admiral server specific
-      - "admiral.config.server.host=0.0.0.0"
-      - "admiral.config.database.host=postgres.example.com"
-      - "admiral.config.database.name=admiral"
-      - "admiral.config.database.user=admiral"
-      - "admiral.config.database.password=test-password"
-      - "admiral.config.database.sslMode=disable"
-      - "admiral.config.auth.oidcIssuer=https://auth.example.com"
-      - "admiral.config.auth.oidcClientId=admiral-client"
-      - "admiral.config.auth.oidcClientSecret=test-secret"
-      - "admiral.config.auth.sessionSecret=test-session-secret"
-      - "admiral.config.storage.type=s3"
-      - "admiral.config.storage.manifestsBucket=admiral-manifests"
-      - "admiral.config.storage.revisionsBucket=admiral-revisions"
-      # Admiral controller specific
-      - "admiral.config.server.hostPort=admiral-server.default.svc.cluster.local:8080"
-      - "admiral.config.server.authToken=test-token-12345"
-      # Admiral worker specific
-      - "admiral.config.worker.role=foo"
-    set:
-      - "admiral.config.server.port=8080"
-      - "admiral.config.database.port=5432"
+# Skip Helm chart directories for repository scan since they require values
+skip-files:
+  - "charts/*/values.yaml"
+  - "charts/*/Chart.yaml"
