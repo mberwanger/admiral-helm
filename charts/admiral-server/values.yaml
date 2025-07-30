@@ -11,20 +11,20 @@ admiral:
     tag: "0.1.0"
     # pullPolicy is the image pull policy
     pullPolicy: IfNotPresent
-  
+
   # imagePullSecrets for private registries
   imagePullSecrets: []
-  
+
   # replicaCount is the number of Admiral server replicas
   replicaCount: 1
-  
+
   # service configuration for Admiral server
   service:
     # type is the Kubernetes service type
     type: ClusterIP
     # port is the HTTP/gRPC service port (multiplexed)
     port: 8080
-  
+
   # ingress configuration for external access
   ingress:
     # enabled determines if ingress should be created
@@ -41,7 +41,7 @@ admiral:
             pathType: Prefix
     # tls configuration for ingress
     tls: []
-  
+
   # resources configuration for Admiral server pods
   resources:
     # limits define maximum resource usage
@@ -52,37 +52,37 @@ admiral:
     requests:
       cpu: 500m
       memory: 512Mi
-  
+
   # nodeSelector for pod assignment
   nodeSelector: {}
   # tolerations for pod assignment
   tolerations: []
   # affinity for pod assignment
   affinity: {}
-  
+
   # Application configuration
   config:
     # Server settings
     server:
       host: "0.0.0.0"
       port: 8080
-    
+
     # Database configuration (REQUIRED)
     database:
       host: ""  # REQUIRED - PostgreSQL host
       port: 5432
       name: "admiral"
       user: ""  # REQUIRED - Database user
-      password: ""  # REQUIRED - Database password  
+      password: ""  # REQUIRED - Database password
       sslMode: "disable"
-    
+
     # OIDC/Authentication configuration (REQUIRED)
     auth:
       oidcIssuer: ""  # REQUIRED - OIDC provider URL
       oidcClientId: ""  # REQUIRED - OIDC client ID
       oidcClientSecret: ""  # REQUIRED - OIDC client secret
       sessionSecret: ""  # REQUIRED - Session encryption secret
-    
+
     # Storage configuration (REQUIRED)
     storage:
       type: "s3"  # REQUIRED - Storage type (currently only "s3" supported)
@@ -92,12 +92,12 @@ admiral:
       accessKey: ""  # OPTIONAL - S3 access key (leave empty for IAM roles)
       secretKey: ""  # OPTIONAL - S3 secret key (leave empty for IAM roles)
       useSSL: true  # OPTIONAL - Use SSL for S3 connections
-    
+
     # Temporal configuration (REQUIRED)
     temporal:
       hostPort: ""  # REQUIRED - Temporal server host:port
       namespace: "admiral"
-    
+
     # Logging
     logging:
       level: "info"
