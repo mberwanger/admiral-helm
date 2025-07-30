@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "admiral-server.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
   labels:
     {{- include "admiral-server.labels" . | nindent 4 }}
 spec:
@@ -31,6 +32,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "admiral-server.serviceAccountName" . }}
+      automountServiceAccountToken: false
       {{- with .Values.priorityClassName }}
       priorityClassName: {{ . }}
       {{- end }}
@@ -46,6 +48,9 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.admiral.image.repository }}:{{ .Values.admiral.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.admiral.image.pullPolicy }}
+          {{- if .Values.admiral.image.pullPolicy | default "IfNotPresent" | ne "Always" }}
+          # Warning: imagePullPolicy is not set to Always, which is recommended for production
+          {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.admiral.config.server.port }}

@@ -111,16 +111,25 @@ serviceAccount:
 
 # Pod Security Context
 podSecurityContext:
-  fsGroup: 2000
+  fsGroup: 65534
+  runAsNonRoot: true
+  runAsUser: 65534
+  runAsGroup: 65534
+  seccompProfile:
+    type: RuntimeDefault
 
 # Security Context
 securityContext:
+  allowPrivilegeEscalation: false
   capabilities:
     drop:
     - ALL
   readOnlyRootFilesystem: true
   runAsNonRoot: true
-  runAsUser: 1000
+  runAsUser: 65534
+  runAsGroup: 65534
+  seccompProfile:
+    type: RuntimeDefault
 
 # Autoscaling
 autoscaling:
