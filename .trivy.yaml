@@ -6,21 +6,29 @@ skip-dirs:
 
 misconfiguration:
   helm:
-    # Set values for admiral-server Helm chart rendering
+    # Set values for all charts rendering
     set-string:
+      # Set values for admiral-server Helm chart rendering
+      - "admiral.config.server.host=0.0.0.0"
       - "admiral.config.database.host=postgres.example.com"
+      - "admiral.config.database.name=admiral"
       - "admiral.config.database.user=admiral"
-      - "admiral.config.database.password=dummy"
+      - "admiral.config.database.password=test-password"
+      - "admiral.config.database.sslMode=disable"
       - "admiral.config.auth.oidcIssuer=https://auth.example.com"
-      - "admiral.config.auth.oidcClientId=admiral"
-      - "admiral.config.auth.oidcClientSecret=dummy"
-      - "admiral.config.auth.sessionSecret=dummy"
-      - "admiral.config.storage.manifestsBucket=manifests"
-      - "admiral.config.storage.revisionsBucket=revisions"
-      - "admiral.config.temporal.hostPort=temporal:7233"
+      - "admiral.config.auth.oidcClientId=admiral-client"
+      - "admiral.config.auth.oidcClientSecret=test-secret"
+      - "admiral.config.auth.sessionSecret=test-session-secret"
+      - "admiral.config.storage.type=s3"
+      - "admiral.config.storage.manifestsBucket=admiral-manifests"
+      - "admiral.config.storage.revisionsBucket=admiral-revisions"
+      - "admiral.config.temporal.hostPort=temporal.example.com:7233"
+      - "admiral.config.temporal.namespace=admiral"
       # Set values for admiral-controller Helm chart rendering
-      - "admiral.config.server.hostPort=admiral-server:8080"
-      - "admiral.config.server.authToken=test-token"
-      # Set values for admiral-worker Helm chart rendering
-      - "admiral.config.temporal.hostPort=temporal-server:7233"
+      - "admiral.config.server.hostPort=admiral-server.default.svc.cluster.local:8080"
+      - "admiral.config.server.authToken=test-token-12345"
+      # Set values for admiral-worker Helm chart rendering (note: temporal.hostPort already set above)
       - "admiral.config.worker.role=foo"
+    set:
+      - "admiral.config.server.port=8080"
+      - "admiral.config.database.port=5432"
