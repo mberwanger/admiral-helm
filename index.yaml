@@ -1,0 +1,289 @@
+apiVersion: v1
+entries:
+  admiral-controller:
+  - annotations:
+      artifacthub.io/category: integration-delivery
+      artifacthub.io/displayName: Admiral Controller
+      artifacthub.io/license: MIT
+      artifacthub.io/links: |
+        - name: Admiral Documentation
+          url: https://admiral.io/docs
+        - name: Source Code
+          url: https://github.com/mberwanger/admiral-helm
+      artifacthub.io/maintainers: |
+        - name: mberwanger
+          email: mberwanger@protonmail.com
+      artifacthub.io/operator: "false"
+      artifacthub.io/readme: |
+        # Admiral Controller
+
+        Admiral Controller is a Kubernetes controller that connects to Admiral Server to execute workloads.
+
+        ## Features
+
+        - Secure connection to Admiral Server with authentication tokens
+        - RBAC-enabled Kubernetes workload management
+        - Comprehensive health monitoring and metrics
+        - Production-ready security defaults
+
+        ## Installation
+
+        ```bash
+        helm repo add admiral https://charts.admiral.io
+        helm install my-controller admiral/admiral-controller \
+          --set admiral.config.server.hostPort="admiral-server:8080" \
+          --set admiral.config.server.authToken="your-auth-token"
+        ```
+    apiVersion: v2
+    appVersion: v0.1.0
+    created: "2025-07-30T18:56:43.711284545Z"
+    description: Official Helm chart for Admiral Controller
+    digest: bd173e3c17ff6cbc7f5bf4cae6271f1bde01e1dde87d4ed290768e6b760bd4db
+    home: https://admiral.io
+    keywords:
+    - admiral
+    - admiral-controller
+    - kubernetes
+    - controller
+    - automation
+    - deployment
+    kubeVersion: '>= 1.20.0-0'
+    maintainers:
+    - email: mberwanger@protonmail.com
+      name: mberwanger
+    name: admiral-controller
+    sources:
+    - https://github.com/mberwanger/admiral
+    - https://github.com/mberwanger/admiral-helm
+    type: application
+    urls:
+    - https://github.com/mberwanger/admiral-helm/releases/download/admiral-controller-0.1.0/admiral-controller-0.1.0.tgz
+    version: 0.1.0
+  admiral-server:
+  - annotations:
+      artifacthub.io/category: integration-delivery
+      artifacthub.io/displayName: Admiral Server
+      artifacthub.io/license: MIT
+      artifacthub.io/links: |
+        - name: Admiral Documentation
+          url: https://admiral.io/docs
+        - name: Source Code
+          url: https://github.com/mberwanger/admiral-helm
+        - name: Admiral Server Repository
+          url: https://github.com/mberwanger/admiral
+      artifacthub.io/maintainers: |
+        - name: mberwanger
+          email: mberwanger@protonmail.com
+      artifacthub.io/operator: "false"
+      artifacthub.io/readme: |
+        # Admiral Server
+
+        Admiral Server is the central orchestration platform that manages and coordinates deployments across multiple Kubernetes clusters. It provides a web interface, API, and integration with various deployment workflows.
+
+        ## Features
+
+        - **Multi-cluster Management**: Deploy and manage applications across multiple Kubernetes clusters
+        - **Web Interface**: Modern dashboard for deployment management
+        - **API-First**: RESTful and GRPC API
+        - **OIDC Authentication**: Secure authentication with OpenID Connect providers
+        - **Production-Ready**: Enterprise security defaults and best practices
+
+        ## Prerequisites
+
+        Before installing Admiral Server, ensure you have:
+
+        - **PostgreSQL Database**: For persistent storage of deployment data
+        - **OIDC Provider**: For user authentication (e.g., Auth0, Microsoft, Okta, Google, etc.)
+        - **S3-Compatible storage**: For storing manifests and revisions (AWS S3, MinIO, etc.)
+        - **Temporal Server**: For workflow execution and reliability
+
+        ## Installation
+
+        ### Basic Installation
+
+        ```bash
+        helm repo add admiral https://charts.admiral.io
+        helm repo update
+        helm install admiral-server admiral/admiral-server \
+          --set admiral.config.database.host="postgres.example.com" \
+          --set admiral.config.database.user="admiral" \
+          --set admiral.config.database.password="your-db-password" \
+          --set admiral.config.auth.oidcIssuer="https://auth.example.com" \
+          --set admiral.config.auth.oidcClientId="admiral-client" \
+          --set admiral.config.auth.oidcClientSecret="your-client-secret" \
+          --set admiral.config.auth.sessionSecret="your-session-secret" \
+          --set admiral.config.storage.manifestsBucket="admiral-manifests" \
+          --set admiral.config.storage.revisionsBucket="admiral-revisions" \
+          --set admiral.config.temporal.hostPort="temporal.example.com:7233"
+        ```
+
+        ### Using Values File
+
+        Create a `values.yaml` file:
+
+        ```yaml
+        admiral:
+          config:
+            database:
+              host: "postgres.example.com"
+              user: "admiral"
+              password: "your-db-password"
+            auth:
+              oidcIssuer: "https://auth.example.com"
+              oidcClientId: "admiral-client"
+              oidcClientSecret: "your-client-secret"
+              sessionSecret: "your-session-secret"
+            storage:
+              manifestsBucket: "admiral-manifests"
+              revisionsBucket: "admiral-revisions"
+              accessKey: "your-s3-access-key"  # Optional for IAM roles
+              secretKey: "your-s3-secret-key"  # Optional for IAM roles
+            temporal:
+              hostPort: "temporal.example.com:7233"
+
+          ingress:
+            enabled: true
+            className: "nginx"
+            hosts:
+              - host: admiral.example.com
+                paths:
+                  - path: /
+                    pathType: Prefix
+            tls:
+              - secretName: admiral-tls
+                hosts:
+                  - admiral.example.com
+        ```
+
+        Then install:
+
+        ```bash
+        helm install admiral-server admiral/admiral-server -f values.yaml
+        ```
+
+        ## Configuration
+
+        ### Required Configuration
+
+        All the following values must be provided:
+
+        - `admiral.config.database.*`: PostgreSQL connection details
+        - `admiral.config.auth.oidcIssuer`: Your OIDC provider URL
+        - `admiral.config.auth.oidcClientId`: OIDC client ID
+        - `admiral.config.auth.oidcClientSecret`: OIDC client secret
+        - `admiral.config.auth.sessionSecret`: Session encryption secret
+        - `admiral.config.storage.manifestsBucket`: S3 bucket for manifests
+        - `admiral.config.storage.revisionsBucket`: S3 bucket for revisions
+        - `admiral.config.temporal.hostPort`: Temporal server address
+
+        ### Security Features
+
+        This chart includes production-ready security defaults:
+
+        - Runs as non-root user (UID 65534)
+        - Read-only root filesystem
+        - Dropped ALL capabilities
+        - Security contexts with seccomp profiles
+        - Network policies (when enabled)
+        - Resource limits and requests
+
+        ## Upgrading
+
+        To upgrade Admiral Server:
+
+        ```bash
+        helm upgrade admiral-server admiral/admiral-server -f values.yaml
+        ```
+
+        ## Uninstallation
+
+        ```bash
+        helm delete admiral-server
+        ```
+
+        **Note**: This will not delete the PostgreSQL database or S3 data. Clean up external resources manually if needed.
+    apiVersion: v2
+    appVersion: 0.1.0
+    created: "2025-07-30T18:56:43.866048226Z"
+    description: Official Helm chart for Admiral Server
+    digest: a745b979562804ba0b8971edb3c7890e19d70a8cb78fdc891b9f9bf1abbc1c43
+    home: https://admiral.io
+    keywords:
+    - admiral
+    - admiral-controller
+    - kubernetes
+    - controller
+    - automation
+    - deployment
+    kubeVersion: '>= 1.20.0-0'
+    maintainers:
+    - email: mberwanger@protonmail.com
+      name: mberwanger
+    name: admiral-server
+    sources:
+    - https://github.com/mberwanger/admiral
+    - https://github.com/mberwanger/admiral-helm
+    type: application
+    urls:
+    - https://github.com/mberwanger/admiral-helm/releases/download/admiral-server-0.1.0/admiral-server-0.1.0.tgz
+    version: 0.1.0
+  admiral-worker:
+  - annotations:
+      artifacthub.io/category: integration-delivery
+      artifacthub.io/displayName: Admiral Worker
+      artifacthub.io/license: MIT
+      artifacthub.io/links: |
+        - name: Admiral Documentation
+          url: https://admiral.io/docs
+        - name: Source Code
+          url: https://github.com/mberwanger/admiral-helm
+      artifacthub.io/maintainers: |
+        - name: mberwanger
+          email: mberwanger@protonmail.com
+      artifacthub.io/operator: "false"
+      artifacthub.io/readme: |
+        # Admiral Worker
+
+        Admiral Worker is a Kubernetes worker that connects to Temporal server to process long-running workflows like Terraform plan/apply operations.
+
+        ## Features
+
+        - Secure connection to Temporal server
+        - Long-running workflow processing
+        - Role-based work distribution
+        - Comprehensive health monitoring and metrics
+        - Production-ready security defaults
+
+        ## Installation
+
+        ```bash
+        helm repo add admiral https://charts.admiral.io
+        helm install my-worker admiral/admiral-worker \
+          --set admiral.config.temporal.hostPort="temporal-server:7233" \
+          --set admiral.config.worker.role="foo"
+        ```
+    apiVersion: v2
+    appVersion: v0.1.0
+    created: "2025-07-30T18:56:43.97846717Z"
+    description: Official Helm chart for Admiral Worker
+    digest: 31dd594faacca3607fc886e90c25e3102aabc6a9f6e414c2a801969775ea71c2
+    home: https://admiral.io
+    keywords:
+    - admiral
+    - admiral-worker
+    - kubernetes
+    - worker
+    - automation
+    kubeVersion: '>= 1.20.0-0'
+    maintainers:
+    - email: mberwanger@protonmail.com
+      name: mberwanger
+    name: admiral-worker
+    sources:
+    - https://github.com/mberwanger/admiral
+    - https://github.com/mberwanger/admiral-helm
+    type: application
+    urls:
+    - https://github.com/mberwanger/admiral-helm/releases/download/admiral-worker-0.1.0/admiral-worker-0.1.0.tgz
+    version: 0.1.0
+generated: "2025-07-30T18:56:43.97847254Z"
