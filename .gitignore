@@ -4,6 +4,6 @@ output
 .idea
 **/*.tgz
 **/charts/*/charts
-checkov-results.sarif
+checkov-results.sarif/
 .claude
 CLAUDE.md
