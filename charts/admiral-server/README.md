@@ -15,7 +15,7 @@ Admiral is a comprehensive application and infrastructure management system desi
 - Kubernetes 1.19+
 - Helm 3.2.0+
 - External PostgreSQL database
-- OIDC provider (e.g., Okta, Google, Keycloak)
+- OIDC provider (e.g., Auth0, Microsoft, Okta, Google, etc.)
 - S3-compatible object storage
 - Temporal workflow engine
 
@@ -27,10 +27,16 @@ To install the chart with the release name `admiral`:
 helm repo add admiral https://charts.admiral.io
 helm repo update
 helm install admiral-server admiral/admiral-server \
-  --set admiral.config.database.host=my-postgres.example.com \
-  --set admiral.config.auth.oidcIssuer=https://my-keycloak.example.com/realms/admiral \
-  --set admiral.config.storage.endpoint=s3.amazonaws.com \
-  --set admiral.config.temporal.hostPort=my-temporal.example.com:7233
+  --set admiral.config.database.host="postgres.example.com" \
+  --set admiral.config.database.user="admiral" \
+  --set admiral.config.database.password="your-db-password" \
+  --set admiral.config.auth.oidcIssuer="https://auth.example.com" \
+  --set admiral.config.auth.oidcClientId="admiral-client" \
+  --set admiral.config.auth.oidcClientSecret="your-client-secret" \
+  --set admiral.config.auth.sessionSecret="your-session-secret" \
+  --set admiral.config.storage.manifestsBucket="admiral-manifests" \
+  --set admiral.config.storage.revisionsBucket="admiral-revisions" \
+  --set admiral.config.temporal.hostPort="temporal.example.com:7233"
 ```
 
 The command deploys Admiral Server on the Kubernetes cluster in the default configuration. The [Parameters](#parameters) section lists the parameters that can be configured during installation.

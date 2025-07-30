@@ -59,7 +59,7 @@ annotations:
     Before installing Admiral Server, ensure you have:
 
     - **PostgreSQL Database**: For persistent storage of deployment data
-    - **OIDC Provider**: For user authentication (e.g., Auth0, Keycloak, etc.)
+    - **OIDC Provider**: For user authentication (e.g., Auth0, Microsoft, Okta, Google, etc.)
     - **S3-Compatible storage**: For storing manifests and revisions (AWS S3, MinIO, etc.)
     - **Temporal Server**: For workflow execution and reliability
 
@@ -69,6 +69,7 @@ annotations:
 
     ```bash
     helm repo add admiral https://charts.admiral.io
+    helm repo update
     helm install admiral-server admiral/admiral-server \
       --set admiral.config.database.host="postgres.example.com" \
       --set admiral.config.database.user="admiral" \
