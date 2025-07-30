@@ -1,20 +1,20 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: "{{ include "admiral-server.fullname" . }}-test-connection"
+  name: "{{ include "admiral-server.fullname" . }}-test-healthcheck"
   labels:
     {{- include "admiral-server.labels" . | nindent 4 }}
   annotations:
     "helm.sh/hook": test
-    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-weight": "2"
     "helm.sh/hook-delete-policy": before-hook-creation
 spec:
   restartPolicy: Never
   containers:
-    - name: wget
-      image: busybox:1.36
-      command: ['wget']
-      args: ['--spider', '--timeout=10', '{{ include "admiral-server.fullname" . }}:{{ .Values.admiral.service.port }}/healthcheck']
+    - name: curl
+      image: curlimages/curl:8.8.0
+      command: ['curl']
+      args: ['-f', 'http://{{ include "admiral-server.fullname" . }}:{{ .Values.admiral.service.port }}/healthcheck']
       resources:
         limits:
           cpu: 100m

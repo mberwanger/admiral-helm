@@ -1,53 +1,188 @@
-# Admiral Server Helm Chart
+{{ template "chart.header" . }}
 
-This repository contains the official Admiral Agent Helm chart for installing
-and configuring Admiral on Kubernetes.
+{{ template "chart.description" . }}
+
+{{ template "chart.versionBadge" . }}{{ template "chart.typeBadge" . }}{{ template "chart.appVersionBadge" . }}
+
+## Introduction
+
+This chart deploys Admiral Server on a Kubernetes cluster using the Helm package manager.
+
+Admiral is a comprehensive application and infrastructure management system designed to orchestrate the full lifecycle of applications from development to production deployment.
 
 ## Prerequisites
 
-To use the charts here, [Helm](https://helm.sh/) must be installed in your
-Kubernetes cluster. Setting up Kubernetes and Helm and is outside the scope
-of this README. Please refer to the Kubernetes and Helm documentation.
+- Kubernetes 1.19+
+- Helm 3.2.0+
+- External PostgreSQL database
+- OIDC provider (e.g., Okta, Google, Keycloak)
+- S3-compatible object storage
+- Temporal workflow engine
 
-The versions required are:
+## Installing the Chart
 
-  * **Helm 3.0+** - This is the earliest version of Helm tested. It is possible
-    it works with earlier versions but this chart is untested for those versions.
-  * **Kubernetes 1.20+** - This is the earliest version of Kubernetes tested.
-    It is possible that this chart works with earlier versions but it is
-    untested.
+To install the chart with the release name `admiral`:
 
-In addition to Helm, you must also have a:
-
-  * **Admiral Token**
-
-## Usage
-
-### Install the Helm Chart
-
-Before installing the chart, you must create two Kubernetes secrets:
-
-To use the charts, you must add the Admiral Helm Chart repository.
-
-```shell
+```bash
 helm repo add admiral https://charts.admiral.io
 helm repo update
-helm install admiral-server admiral/admiral-server
+helm install admiral-server admiral/{{ template "chart.name" . }} \
+  --set admiral.config.database.host=my-postgres.example.com \
+  --set admiral.config.auth.oidcIssuer=https://my-keycloak.example.com/realms/admiral \
+  --set admiral.config.storage.endpoint=s3.amazonaws.com \
+  --set admiral.config.temporal.hostPort=my-temporal.example.com:7233
 ```
 
-### Upgrade existing Helm Chart
+The command deploys Admiral Server on the Kubernetes cluster in the default configuration. The [Parameters](#parameters) section lists the parameters that can be configured during installation.
+
+> **Tip**: List all releases using `helm list`
+
+### Upgrading existing Helm Chart
 
 ```
 helm repo update
 helm upgrade admiral-server admiral/admiral-server --reuse-values
 ```
 
-## Values
+## Uninstalling the Chart
 
-### General parameters
+To uninstall the `admiral-server` deployment:
 
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-{{- range .Values }}
-| {{ .Key }} | {{ .Type }} | {{ if .Default }}{{ .Default }}{{ else }}{{ .AutoDefault }}{{ end }} | {{ if .Description }}{{ .Description }}{{ else }}{{ .AutoDescription }}{{ end }} |
-{{- end }}
+```bash
+helm uninstall admiral-server
+```
+
+The command removes all the Kubernetes components associated with the chart and deletes the release.
+
+## Parameters
+
+{{ template "chart.valuesSection" . }}
+
+### Required Configuration
+
+All external service configurations are **required**. The chart includes schema validation to enforce this:
+
+#### Database Configuration
+Admiral requires a PostgreSQL database. Configure the connection details:
+
+```yaml
+admiral:
+  config:
+    database:
+      host: "your-postgres-host"
+      name: "admiral"
+      user: "admiral"
+      password: "your-secure-password"
+```
+
+#### Authentication Configuration
+Configure OIDC provider for authentication:
+
+```yaml
+admiral:
+  config:
+    auth:
+      oidcIssuer: "https://your-idp.com"
+      oidcClientId: "your-client-id"
+      oidcClientSecret: "your-client-secret"
+      sessionSecret: "your-session-secret"
+```
+
+#### Storage Configuration
+Configure S3-compatible storage for manifests and revisions:
+
+```yaml
+admiral:
+  config:
+    storage:
+      type: "s3"
+      accessKey: "your-access-key"
+      secretKey: "your-secret-key"
+      manifestsBucket: "manifests"
+      revisionsBucket: "revisions"
+```
+
+#### Temporal Configuration
+Configure Temporal workflow engine:
+
+```yaml
+admiral:
+  config:
+    temporal:
+      hostPort: "your-temporal-host:7233"
+      namespace: "admiral"
+```
+
+## Configuration and Installation Details
+
+### Schema Validation
+
+This chart includes `values.schema.json` to validate required configuration fields. If required fields are missing, Helm will reject the installation with a clear error message.
+
+### Security Context
+
+The chart runs with a restrictive security context by default:
+- Non-root user (UID 1000)
+- Read-only root filesystem
+- Dropped capabilities
+
+### Resource Management
+
+Configure resource limits and requests:
+
+```yaml
+admiral:
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+```
+
+### High Availability
+
+For production deployments, consider:
+
+```yaml
+admiral:
+  replicaCount: 3
+  
+podDisruptionBudget:
+  enabled: true
+  maxUnavailable: 1
+
+affinity:
+  podAntiAffinity:
+    enabled: true
+    type: "hard"
+```
+
+### Ingress
+
+Configure ingress for external access:
+
+```yaml
+admiral:
+  ingress:
+    enabled: true
+    className: "nginx"
+    hosts:
+      - host: admiral.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: admiral-tls
+        hosts:
+          - admiral.example.com
+```
+
+{{ template "chart.homepage" . }}
+
+{{ template "chart.maintainersSection" . }}
+
+{{ template "chart.sourcesSection" . }}
+
+{{ template "chart.requirementsSection" . }}

@@ -16,7 +16,7 @@ assignees: ""
 
 **Version**
 
-<!-- What SHA of Clutch was running? -->
+<!-- What SHA of Admiral was running? -->
 
 **Other Context**
 

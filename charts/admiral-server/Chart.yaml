@@ -13,12 +13,17 @@ appVersion: "0.1.0"
 kubeVersion: ">= 1.20.0-0"
 home: https://admiral.io
 keywords:
-- admiral
-- admiral-server
+  - application-management
+  - infrastructure-as-code
+  - kubernetes
+  - terraform
+  - deployment
 sources:
-- https://github.com/mberwanger/admiral-helm
+  - https://github.com/mberwanger/admiral
+  - https://github.com/mberwanger/admiral-helm
 maintainers:
 - name: Martin H Berwanger
   url: https://github.com/mberwanger
 annotations:
   artifacthub.io/category: integration-delivery
+  org.opencontainers.image.source: https://github.com/mberwanger/admiral-server

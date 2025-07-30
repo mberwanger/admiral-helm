@@ -40,6 +40,9 @@ helm.sh/chart: {{ include "admiral-server.chart" . }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- with .Values.commonLabels }}
+{{- toYaml . }}
+{{- end }}
 {{- end }}
 
 {{/*
@@ -59,4 +62,11 @@ Create the name of the service account to use
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
+{{- end }}
+
+{{/*
+Database connection string
+*/}}
+{{- define "admiral-server.databaseUrl" -}}
+{{- printf "postgres://%s:%s@%s:%v/%s?sslmode=%s" .Values.admiral.config.database.user .Values.admiral.config.database.password .Values.admiral.config.database.host .Values.admiral.config.database.port .Values.admiral.config.database.name .Values.admiral.config.database.sslMode }}
 {{- end }}
