@@ -13,12 +13,12 @@ appVersion: "0.1.0"
 kubeVersion: ">= 1.20.0-0"
 home: https://admiral.io
 keywords:
-- admiral
-- admiral-controller
+  - admiral
+  - admiral-controller
 sources:
-- https://github.com/mberwanger/admiral-helm
+  - https://github.com/mberwanger/admiral-helm
 maintainers:
-- name: Martin H Berwanger
-  email: martin@example.com
+  - name: mberwanger
+    email: mberwanger@protonmail.com
 annotations:
   artifacthub.io/category: integration-delivery

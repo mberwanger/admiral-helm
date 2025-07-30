@@ -22,8 +22,8 @@ sources:
   - https://github.com/mberwanger/admiral
   - https://github.com/mberwanger/admiral-helm
 maintainers:
-  - name: Martin H Berwanger
-    email: mberwanger@admiral.io
+  - name: mberwanger
+    email: mberwanger@protonmail.com
 annotations:
   artifacthub.io/category: integration-delivery
   org.opencontainers.image.source: https://github.com/mberwanger/admiral-server

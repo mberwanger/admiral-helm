@@ -1,13 +1,10 @@
-## Reference: https://github.com/helm/chart-testing/blob/master/doc/ct_lint-and-install.md
-# Don't add the 'debug' attribute, otherwise the workflow won't work anymore
-# Only Used for the CT Lint Stage
 remote: origin
 target-branch: master
 chart-dirs:
-- charts
-validate-chart-schema: false
-validate-maintainers: false
-validate-yaml: true
-exclude-deprecated: true
+  - charts
 excluded-charts: []
 check-version-increment: false
+validate-chart-schema: true
+validate-maintainers: true
+validate-yaml: true
+exclude-deprecated: true
