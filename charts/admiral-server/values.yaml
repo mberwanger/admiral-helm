@@ -192,7 +192,7 @@ startupProbe:
 affinity:
   podAntiAffinity:
     enabled: false
-    type: "soft" # soft or hard
+    type: "soft"  # soft or hard
     topologyKey: "kubernetes.io/hostname"
 
 # Additional configurations
