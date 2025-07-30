@@ -1,0 +1,17 @@
+{{- if .Values.postgresql.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-postgres-init
+  labels:
+    {{- include "admiral-demo.labels" . | nindent 4 }}
+data:
+  init.sql: |
+    -- Enable uuid-ossp extension in the default database
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+    -- Create additional databases for demo services
+    CREATE DATABASE keycloak;
+    CREATE DATABASE temporal;
+    CREATE DATABASE temporal_visibility;
+{{- end }}

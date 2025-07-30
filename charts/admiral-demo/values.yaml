@@ -1,0 +1,193 @@
+# Admiral Demo Chart Values
+# This file contains default values for quickly provisioning Admiral with all dependencies
+
+# Admiral Server configuration
+admiral-server:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: admiral/server
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  service:
+    type: ClusterIP
+    port: 8080
+
+  ingress:
+    enabled: true
+    className: nginx
+    hosts:
+      - host: admiral.admiral-demo.local
+        paths:
+          - path: /
+            pathType: Prefix
+
+  config:
+    database:
+      host: "admiral-demo-postgresql"
+      port: 5432
+      database: admiral
+      username: admiral
+      password: admiral-demo-password # Should be changed in production
+
+    keycloak:
+      enabled: true
+      realm: admiral
+      clientId: admiral-server
+      clientSecret: admiral-demo-secret # Should be changed in production
+      authUrl: "http://admiral-demo-keycloak:8080/auth"
+
+    temporal:
+      host: "admiral-demo-temporal-frontend"
+      port: 7233
+      namespace: admiral
+
+    s3:
+      endpoint: "http://admiral-demo-minio:9000"
+      bucket: admiral-data
+      accessKey: minioadmin
+      secretKey: minioadmin # Should be changed in production
+
+# Admiral Worker configuration
+admiral-worker:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: admiral/worker
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  config:
+    temporal:
+      host: "admiral-demo-temporal-frontend"
+      port: 7233
+      namespace: admiral
+      taskQueue: admiral-tasks
+
+    s3:
+      endpoint: "http://admiral-demo-minio:9000"
+      bucket: admiral-data
+      accessKey: minioadmin
+      secretKey: minioadmin # Should be changed in production
+
+# PostgreSQL configuration
+postgresql:
+  enabled: true
+  auth:
+    username: "admiral"
+    password: "shipitnow"
+    postgresPassword: "shipitnow"
+    database: "admiral"
+
+  primary:
+    persistence:
+      enabled: false
+      size: 5Gi
+
+    initdb:
+      scriptsConfigMap: "admiral-demo-postgres-init"
+
+# Keycloak configuration
+keycloak:
+  enabled: true
+  auth:
+    adminUser: "admiral"
+    adminPassword: "shipitnow"
+
+  postgresql:
+    enabled: false
+
+  externalDatabase:
+    host: "admiral-demo-postgresql"
+    port: 5432
+    user: "admiral"
+    password: "shipitnow"
+    database: "keycloak"
+
+  # extraEnvVars:
+  #   - name: KEYCLOAK_EXTRA_ARGS
+  #     value: "--import-realm"
+
+# Temporal configuration
+temporal:
+  enabled: true
+
+  cassandra:
+    enabled: false
+
+  mysql:
+    enabled: false
+
+  postgresql:
+    enabled: true
+
+  elasticsearch:
+    enabled: false
+
+  prometheus:
+    enabled: false
+
+  grafana:
+    enabled: false
+
+  server:
+    replicaCount: 1
+    config:
+      persistence:
+        default:
+          driver: "sql"
+          sql:
+            driver: "postgres12"
+            host: "admiral-demo-postgresql"
+            port: 5432
+            database: "temporal"
+            user: "admiral"
+            password: "shipitnow"
+            maxConns: 20
+            maxConnLifetime: "1h"
+        visibility:
+          driver: "sql"
+          sql:
+            driver: "postgres12"
+            host: "admiral-demo-postgresql"
+            port: 5432
+            database: "temporal_visibility"
+            user: "admiral"
+            password: "shipitnow"
+            maxConns: 20
+            maxConnLifetime: "1h"
+
+  admintools:
+    enabled: false
+
+  web:
+    enabled: false
+
+  schema:
+    setup:
+      enabled: true
+    update:
+      enabled: true
+
+# MinIO configuration
+minio:
+  enabled: true
+  auth:
+    rootUser: "admiral"
+    rootPassword: "shipitnow"
+
+  console:
+    enabled: false
+
+  defaultBuckets: "manifests,revisions"
+
+  persistence:
+    enabled: false
+    size: 5Gi
+
+  service:
+    type: ClusterIP
+    ports:
+      api: 9000
+      console: 9090

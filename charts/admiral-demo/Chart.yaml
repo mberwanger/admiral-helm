@@ -1,0 +1,60 @@
+apiVersion: v2
+name: admiral-demo
+description: A Helm chart for quickly provisioning Admiral with all required dependencies (PostgreSQL, Keycloak, Temporal, MinIO)
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+
+# Kubernetes version requirements
+kubeVersion: ">= 1.20.0-0"
+
+# Project information
+home: https://admiral.io
+keywords:
+  - admiral
+  - demo
+  - quickstart
+
+sources:
+  - https://github.com/mberwanger/admiral
+  - https://github.com/mberwanger/admiral-helm
+
+maintainers:
+  - name: Martin Berwanger
+    email: martin.berwanger@example.com
+
+dependencies:
+  # Admiral components
+  - name: admiral-worker
+    version: "0.1.0"
+    repository: "https://charts.admiral.io"
+    condition: admiral-worker.enabled
+
+  - name: admiral-server
+    version: "0.1.0"
+    repository: "https://charts.admiral.io"
+    condition: admiral-server.enabled
+
+  # Keycloak for authentication
+  - name: keycloak
+    version: "24.8.x"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: keycloak.enabled
+
+  # Temporal workflow orchestration
+  - name: temporal
+    version: "0.64.x"
+    repository: "https://temporalio.github.io/helm-charts"
+    condition: temporal.enabled
+
+  # PostgreSQL database
+  - name: postgresql
+    version: "16.7.x"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: postgresql.enabled
+
+  # MinIO object storage
+  - name: minio
+    version: "17.0.x"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: minio.enabled
