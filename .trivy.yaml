@@ -6,9 +6,12 @@ skip-dirs:
 
 misconfiguration:
   helm:
-    # Set values for all charts rendering
+    # Set values that work for all charts - minimal required values
     set-string:
-      # Set values for admiral-server Helm chart rendering
+      # Common temporal configuration
+      - "admiral.config.temporal.hostPort=temporal.example.com:7233"
+      - "admiral.config.temporal.namespace=admiral"
+      # Admiral server specific
       - "admiral.config.server.host=0.0.0.0"
       - "admiral.config.database.host=postgres.example.com"
       - "admiral.config.database.name=admiral"
@@ -22,12 +25,10 @@ misconfiguration:
       - "admiral.config.storage.type=s3"
       - "admiral.config.storage.manifestsBucket=admiral-manifests"
       - "admiral.config.storage.revisionsBucket=admiral-revisions"
-      - "admiral.config.temporal.hostPort=temporal.example.com:7233"
-      - "admiral.config.temporal.namespace=admiral"
-      # Set values for admiral-controller Helm chart rendering
+      # Admiral controller specific
       - "admiral.config.server.hostPort=admiral-server.default.svc.cluster.local:8080"
       - "admiral.config.server.authToken=test-token-12345"
-      # Set values for admiral-worker Helm chart rendering (note: temporal.hostPort already set above)
+      # Admiral worker specific
       - "admiral.config.worker.role=foo"
     set:
       - "admiral.config.server.port=8080"
