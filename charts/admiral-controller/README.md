@@ -93,7 +93,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | metrics.path | string | `"/metrics"` |  |
 | metrics.port | int | `9090` |  |
 | networkPolicy.egress.customRules | list | `[]` |  |
-| networkPolicy.enabled | bool | `false` |  |
+| networkPolicy.enabled | bool | `true` |  |
 | networkPolicy.ingress.customRules | list | `[]` |  |
 | networkPolicy.ingress.namespaceSelector | object | `{}` |  |
 | networkPolicy.ingress.podSelector | object | `{}` |  |

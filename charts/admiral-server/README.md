@@ -135,7 +135,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | metrics.enabled | bool | `true` |  |
 | metrics.path | string | `"/metrics"` |  |
 | networkPolicy.egress.customRules | list | `[]` |  |
-| networkPolicy.enabled | bool | `false` |  |
+| networkPolicy.enabled | bool | `true` |  |
 | networkPolicy.ingress.customRules | list | `[]` |  |
 | networkPolicy.ingress.namespaceSelector | object | `{}` |  |
 | networkPolicy.ingress.podSelector | object | `{}` |  |
