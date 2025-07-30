@@ -106,7 +106,7 @@ annotations:
           secretKey: "your-s3-secret-key"  # Optional for IAM roles
         temporal:
           hostPort: "temporal.example.com:7233"
-      
+
       ingress:
         enabled: true
         className: "nginx"
