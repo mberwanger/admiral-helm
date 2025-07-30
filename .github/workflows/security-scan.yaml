@@ -67,6 +67,31 @@ jobs:
   trivy-scan:
     name: Trivy Security Scan
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Run Trivy on repository
+        uses: aquasecurity/trivy-action@0.32.0
+        with:
+          scan-type: config
+          scan-ref: .
+          format: sarif
+          output: trivy-results.sarif
+          severity: MEDIUM,HIGH,CRITICAL
+          exit-code: 0
+          trivy-config: .trivy.yaml
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@4e828ff8d448a8a6e532957b1811f387a63867e8 # v3.29.4
+        if: always()
+        with:
+          sarif_file: trivy-results.sarif
+          category: trivy-helm
+
+  trivy-k8s-scan:
+    name: Trivy Kubernetes Manifest Scan
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         chart:
@@ -109,7 +134,7 @@ jobs:
       - name: Template Helm chart for scanning
         run: |
           helm template ${{ matrix.chart }} ./charts/${{ matrix.chart }} \
-            -f test-values.yaml > ${{ matrix.chart }}-rendered.yaml
+            -f test-values.yaml --namespace test > ${{ matrix.chart }}-rendered.yaml
 
       - name: Run Trivy on rendered manifests
         uses: aquasecurity/trivy-action@0.32.0
@@ -117,7 +142,7 @@ jobs:
           scan-type: config
           input: ${{ matrix.chart }}-rendered.yaml
           format: sarif
-          output: trivy-${{ matrix.chart }}.sarif
+          output: trivy-k8s-${{ matrix.chart }}.sarif
           severity: MEDIUM,HIGH,CRITICAL
           exit-code: 0
 
@@ -125,5 +150,5 @@ jobs:
         uses: github/codeql-action/upload-sarif@4e828ff8d448a8a6e532957b1811f387a63867e8 # v3.29.4
         if: always()
         with:
-          sarif_file: trivy-${{ matrix.chart }}.sarif
-          category: trivy-${{ matrix.chart }}
+          sarif_file: trivy-k8s-${{ matrix.chart }}.sarif
+          category: trivy-k8s-${{ matrix.chart }}

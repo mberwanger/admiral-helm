@@ -1,0 +1,20 @@
+# Trivy configuration file
+timeout: 10m
+skip-dirs:
+  - "charts/*/ci"
+  - ".github"
+
+misconfiguration:
+  helm:
+    # Set values for Helm chart rendering
+    set-string:
+      - "admiral.config.database.host=postgres.example.com"
+      - "admiral.config.database.user=admiral"
+      - "admiral.config.database.password=dummy"
+      - "admiral.config.auth.oidcIssuer=https://auth.example.com"
+      - "admiral.config.auth.oidcClientId=admiral"
+      - "admiral.config.auth.oidcClientSecret=dummy"
+      - "admiral.config.auth.sessionSecret=dummy"
+      - "admiral.config.storage.manifestsBucket=manifests"
+      - "admiral.config.storage.revisionsBucket=revisions"
+      - "admiral.config.temporal.hostPort=temporal:7233"
