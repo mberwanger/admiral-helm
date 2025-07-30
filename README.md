@@ -8,6 +8,7 @@ Admiral Helm is a collection charts for admiral project. The charts can be added
 
 ```bash
 helm repo add admiral https://charts.admiral.io
+helm repo update
 ```
 
 The charts published currently by this repository are the following:
@@ -16,10 +17,7 @@ The charts published currently by this repository are the following:
 | ------------------------------------------------------------------------------------------------------ | ------ | ------------------------------ |
 | [admiral-server](https://github.com/mberwanger/admiral-helm/tree/master/charts/admiral-server)         | Alpha  | Deploys the Admiral Server     |
 | [admiral-controller](https://github.com/mberwanger/admiral-helm/tree/master/charts/admiral-controller) | Alpha  | Deploys the Admiral Controller |
-
-## Security Policy
-
-Please refer to [SECURITY.md](https://github.com/mberwanger/admiral-helm/blob/master/SECURITY.md) for details on how to report security issues.
+| [admiral-worker](https://github.com/mberwanger/admiral-helm/tree/master/charts/admiral-worker)         | Alpha  | Deploys the Admiral Worker     |
 
 ## Changelog
 
