@@ -11,14 +11,3 @@ validate-yaml: true
 exclude-deprecated: true
 excluded-charts: []
 check-version-increment: false
-helm-extra-set-string:
-  - admiral.config.database.host=test-db
-  - admiral.config.database.user=test-user
-  - admiral.config.database.password=test-password
-  - admiral.config.auth.oidcIssuer=https://test-issuer.example.com
-  - admiral.config.auth.oidcClientId=test-client-id
-  - admiral.config.auth.oidcClientSecret=test-client-secret
-  - admiral.config.auth.sessionSecret=test-session-secret
-  - admiral.config.storage.manifestsBucket=test-manifests
-  - admiral.config.storage.revisionsBucket=test-revisions
-  - admiral.config.temporal.hostPort=temporal:7233
