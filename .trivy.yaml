@@ -21,3 +21,6 @@ misconfiguration:
       # Set values for admiral-controller Helm chart rendering
       - "admiral.config.server.hostPort=admiral-server:8080"
       - "admiral.config.server.authToken=test-token"
+      # Set values for admiral-worker Helm chart rendering
+      - "admiral.config.temporal.hostPort=temporal-server:7233"
+      - "admiral.config.worker.role=foo"

@@ -48,6 +48,7 @@ jobs:
         chart:
           - admiral-server
           - admiral-controller
+          - admiral-worker
     steps:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -97,6 +98,7 @@ jobs:
         chart:
           - admiral-server
           - admiral-controller
+          - admiral-worker
     steps:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -126,9 +128,24 @@ jobs:
               temporal:
                 hostPort: "temporal.example.com:7233"
           EOF
+          elif [ "${{ matrix.chart }}" = "admiral-controller" ]; then
+            cat > test-values.yaml <<EOF
+          admiral:
+            config:
+              server:
+                hostPort: "admiral-server.default.svc.cluster.local:8080"
+                authToken: "test-token"
+          EOF
           else
-            # admiral-controller doesn't need special values
-            echo "{}" > test-values.yaml
+            # admiral-worker
+            cat > test-values.yaml <<EOF
+          admiral:
+            config:
+              temporal:
+                hostPort: "temporal-server.default.svc.cluster.local:7233"
+              worker:
+                role: "foo"
+          EOF
           fi
 
       - name: Template Helm chart for scanning
