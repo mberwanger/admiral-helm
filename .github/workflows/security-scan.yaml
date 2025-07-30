@@ -35,6 +35,10 @@ jobs:
           directory: charts/
           output_format: cli,sarif
           output_file_path: checkov-results.sarif
+          var_file: |
+            charts/admiral-server/ci/test-values.yaml
+            charts/admiral-controller/ci/test-values.yaml
+            charts/admiral-worker/ci/test-values.yaml
 
       - name: Show SARIF results summary
         if: always()
