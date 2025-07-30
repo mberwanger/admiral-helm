@@ -1,0 +1,160 @@
+{{ template "chart.header" . }}
+
+{{ template "chart.badgesSection" . }}
+
+## Introduction
+
+This chart deploys Admiral Worker on a Kubernetes cluster using the Helm package manager.
+
+Admiral Worker is a Kubernetes worker that connects to Temporal server to process long-running workflows. It acts as the execution agent that receives workflow instructions from Temporal and executes operations based on its assigned role.
+
+## Prerequisites
+
+- Kubernetes 1.20+
+- Helm 3.2.0+
+- Temporal server instance
+- Worker role assignment
+
+## Installing the Chart
+
+To install the chart with the release name `admiral-worker`:
+
+```bash
+helm repo add admiral https://charts.admiral.io
+helm repo update
+helm install admiral-worker admiral/admiral-worker \
+  --set admiral.config.temporal.hostPort="temporal-server.default.svc.cluster.local:7233" \
+  --set admiral.config.worker.role="foo"
+```
+
+The command deploys Admiral Worker on the Kubernetes cluster in the default configuration. The [Parameters](#parameters) section lists the parameters that can be configured during installation.
+
+> **Tip**: List all releases using `helm list`
+
+### Upgrading existing Helm Chart
+
+```
+helm repo update
+helm upgrade admiral-worker admiral/admiral-worker --reuse-values
+```
+
+## Uninstalling the Chart
+
+To uninstall the `admiral-worker` deployment:
+
+```bash
+helm uninstall admiral-worker
+```
+
+The command removes all the Kubernetes components associated with the chart and deletes the release.
+
+## Parameters
+
+{{ template "chart.valuesSection" . }}
+
+### Required Configuration
+
+All external service configurations are **required**. The chart includes schema validation to enforce this:
+
+#### Temporal Server Configuration
+
+Admiral Worker requires connection details to Temporal server:
+
+```yaml
+admiral:
+  config:
+    temporal:
+      hostPort: "temporal-server.default.svc.cluster.local:7233"
+      namespace: "admiral"
+```
+
+#### Worker Configuration
+
+Configure the worker's role and behavior:
+
+```yaml
+admiral:
+  config:
+    worker:
+      role: "foo"  # or "bar"
+      namespace: "default"
+      concurrency: 5
+```
+
+## Configuration and Installation Details
+
+### Schema Validation
+
+This chart includes `values.schema.json` to validate required configuration fields. If required fields are missing, Helm will reject the installation with a clear error message.
+
+### Security Context
+
+The chart runs with a restrictive security context by default:
+
+- Non-root user (UID 65534)
+- Read-only root filesystem
+- Dropped ALL capabilities
+- Seccomp profiles enabled
+
+### RBAC
+
+Admiral Worker requires cluster-level permissions to manage Kubernetes resources:
+
+```yaml
+rbac:
+  create: true
+  rules:
+    - apiGroups: [""]
+      resources: ["pods", "services", "configmaps", "secrets"]
+      verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+    - apiGroups: ["apps"]
+      resources: ["deployments", "replicasets"]
+      verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+```
+
+### Resource Management
+
+Configure resource limits and requests:
+
+```yaml
+admiral:
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+```
+
+### High Availability
+
+For production deployments, consider:
+
+```yaml
+admiral:
+  replicaCount: 2
+
+podDisruptionBudget:
+  enabled: true
+  maxUnavailable: 1
+
+admiral:
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: admiral-worker
+            topologyKey: kubernetes.io/hostname
+```
+
+https://admiral.io
+
+{{ template "chart.maintainersSection" . }}
+
+{{ template "chart.sourcesSection" . }}
+
+{{ template "chart.requirementsSection" . }}

@@ -1,76 +1,214 @@
-# Default values for admiral-server.
+# Default values for admiral-server
 # This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
 
-replicaCount: 1
+# Admiral server configuration
+admiral:
+  # image configuration for Admiral server
+  image:
+    # repository is the Admiral server image repository
+    repository: ghcr.io/mberwanger/admiral-server
+    # tag is the Admiral server image tag (avoid 'latest' for production)
+    tag: "0.1.0"
+    # pullPolicy is the image pull policy
+    pullPolicy: IfNotPresent
 
-image:
-  repository: ghcr.io/mberwanger/admiral-server
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  # imagePullSecrets for private registries
+  imagePullSecrets: []
 
-imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
+  # replicaCount is the number of Admiral server replicas
+  replicaCount: 1
 
+  # service configuration for Admiral server
+  service:
+    # type is the Kubernetes service type
+    type: ClusterIP
+    # port is the HTTP/gRPC service port (multiplexed)
+    port: 8080
+
+  # ingress configuration for external access
+  ingress:
+    # enabled determines if ingress should be created
+    enabled: false
+    # className is the ingress class name
+    className: ""
+    # annotations for the ingress resource
+    annotations: {}
+    # hosts configuration for ingress
+    hosts:
+      - host: admiral.local
+        paths:
+          - path: /
+            pathType: Prefix
+    # tls configuration for ingress
+    tls: []
+
+  # resources configuration for Admiral server pods
+  resources:
+    # limits define maximum resource usage
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    # requests define guaranteed resource allocation
+    requests:
+      cpu: 500m
+      memory: 512Mi
+
+  # nodeSelector for pod assignment
+  nodeSelector: {}
+  # tolerations for pod assignment
+  tolerations: []
+  # affinity for pod assignment
+  affinity: {}
+
+  # Application configuration
+  config:
+    # Server settings
+    server:
+      host: "0.0.0.0"
+      port: 8080
+
+    # Database configuration (REQUIRED)
+    database:
+      host: ""  # REQUIRED - PostgreSQL host
+      port: 5432
+      name: "admiral"
+      user: ""  # REQUIRED - Database user
+      password: ""  # REQUIRED - Database password
+      sslMode: "disable"
+
+    # OIDC/Authentication configuration (REQUIRED)
+    auth:
+      oidcIssuer: ""  # REQUIRED - OIDC provider URL
+      oidcClientId: ""  # REQUIRED - OIDC client ID
+      oidcClientSecret: ""  # REQUIRED - OIDC client secret
+      sessionSecret: ""  # REQUIRED - Session encryption secret
+
+    # Storage configuration (REQUIRED)
+    storage:
+      type: "s3"  # REQUIRED - Storage type (currently only "s3" supported)
+      endpoint: ""  # OPTIONAL - S3 endpoint (leave empty for AWS S3)
+      manifestsBucket: ""  # REQUIRED - Bucket for manifests
+      revisionsBucket: ""  # REQUIRED - Bucket for revisions
+      accessKey: ""  # OPTIONAL - S3 access key (leave empty for IAM roles)
+      secretKey: ""  # OPTIONAL - S3 secret key (leave empty for IAM roles)
+      useSSL: true  # OPTIONAL - Use SSL for S3 connections
+
+    # Temporal configuration (REQUIRED)
+    temporal:
+      hostPort: ""  # REQUIRED - Temporal server host:port
+      namespace: "admiral"
+
+    # Logging
+    logging:
+      level: "info"
+      format: "json"
+
+# ServiceAccount configuration
 serviceAccount:
-  # Specifies whether a service account should be created
   create: true
-  # Automatically mount a ServiceAccount's API credentials?
-  automount: true
-  # Annotations to add to the service account
   annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
   name: ""
 
+# Pod Security Context
+podSecurityContext:
+  fsGroup: 65534
+  runAsNonRoot: true
+  runAsUser: 65534
+  runAsGroup: 65534
+  seccompProfile:
+    type: RuntimeDefault
+
+# Security Context
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 65534
+  runAsGroup: 65534
+  seccompProfile:
+    type: RuntimeDefault
+
+# Autoscaling
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# Pod Disruption Budget
+podDisruptionBudget:
+  enabled: false
+  # minAvailable: 1
+  maxUnavailable: 1
+
+# Network Policy
+networkPolicy:
+  enabled: true
+  ingress:
+    namespaceSelector: {}
+    podSelector: {}
+    customRules: []
+  egress:
+    customRules: []
+
+# Monitoring
+metrics:
+  enabled: true
+  path: /metrics
+
+# Health Probes
+livenessProbe:
+  enabled: true
+  path: /healthcheck
+  initialDelaySeconds: 60
+  periodSeconds: 30
+  timeoutSeconds: 10
+  successThreshold: 1
+  failureThreshold: 3
+
+readinessProbe:
+  enabled: true
+  path: /healthcheck
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 3
+
+startupProbe:
+  enabled: true
+  path: /healthcheck
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 18
+
+# Pod Anti-affinity
+affinity:
+  podAntiAffinity:
+    enabled: false
+    type: "soft"  # soft or hard
+    topologyKey: "kubernetes.io/hostname"
+
+# Additional configurations
 podAnnotations: {}
 podLabels: {}
+priorityClassName: ""
+initContainers: []
+sidecars: []
+extraEnvVars: []
+extraVolumes: []
+extraVolumeMounts: []
+extraManifests: []
 
-podSecurityContext: {}
-  # fsGroup: 2000
+# Common labels and annotations
+commonLabels: {}
+commonAnnotations: {}
 
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
-
-service:
-  type: ClusterIP
-  port: 8080
-
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
-
-
-# Additional volumes on the output Deployment definition.
-volumes: []
-# - name: foo
-#   secret:
-#     secretName: mysecret
-#     optional: false
-
-# Additional volumeMounts on the output Deployment definition.
-volumeMounts: []
-# - name: foo
-#   mountPath: "/etc/foo"
-#   readOnly: true
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
+# Global values (for sub-charts compatibility)
+global: {}

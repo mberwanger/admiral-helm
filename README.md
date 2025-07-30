@@ -16,6 +16,24 @@ The charts published currently by this repository are the following:
 | ------------------------------------------------------------------------------------------------------ | ------ | ------------------------------ |
 | [admiral-server](https://github.com/mberwanger/admiral-helm/tree/master/charts/admiral-server)         | Alpha  | Deploys the Admiral Server     |
 | [admiral-controller](https://github.com/mberwanger/admiral-helm/tree/master/charts/admiral-controller) | Alpha  | Deploys the Admiral Controller |
+| [admiral-worker](https://github.com/mberwanger/admiral-helm/tree/master/charts/admiral-worker)         | Alpha  | Deploys the Admiral Worker     |
+
+## Security Scanning
+
+You can run security scans locally using [Checkov](https://www.checkov.io/):
+
+```bash
+# Install Checkov
+pip install checkov
+
+# Scan individual charts
+checkov -d charts/admiral-server --output cli --output sarif --output-file-path checkov-results.sarif --var-file charts/admiral-server/ci/test-values.yaml
+checkov -d charts/admiral-controller --output cli --output sarif --output-file-path checkov-results.sarif --var-file charts/admiral-controller/ci/test-values.yaml
+checkov -d charts/admiral-worker --output cli --output sarif --output-file-path checkov-results.sarif --var-file charts/admiral-worker/ci/test-values.yaml
+
+# Scan all charts
+checkov -d charts/ --output cli --output sarif --output-file-path checkov-results.sarif --var-file charts/admiral-server/ci/test-values.yaml --var-file charts/admiral-controller/ci/test-values.yaml --var-file charts/admiral-worker/ci/test-values.yaml
+```
 
 ## Security Policy
 

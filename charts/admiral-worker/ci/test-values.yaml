@@ -1,0 +1,7 @@
+# Test values for admiral-worker CI
+admiral:
+  config:
+    temporal:
+      hostPort: "temporal-server.default.svc.cluster.local:7233"
+    worker:
+      role: "foo"

@@ -1,3 +1,39 @@
-Thank you for installing {{ .Chart.Name }}.
+1. Get the application URL by running these commands:
+{{- if .Values.admiral.ingress.enabled }}
+{{- range $host := .Values.admiral.ingress.hosts }}
+  {{- range .paths }}
+  http{{ if $.Values.admiral.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}
+  {{- end }}
+{{- end }}
+{{- else if contains "NodePort" .Values.admiral.service.type }}
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "admiral-server.fullname" . }})
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo http://$NODE_IP:$NODE_PORT
+{{- else if contains "LoadBalancer" .Values.admiral.service.type }}
+     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+           You can watch the status of by running 'kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "admiral-server.fullname" . }}'
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "admiral-server.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
+  echo http://$SERVICE_IP:{{ .Values.admiral.service.port }}
+{{- else if contains "ClusterIP" .Values.admiral.service.type }}
+  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "admiral-server.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+  export CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  echo "Visit http://127.0.0.1:8080 to use your application"
+  kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT
+{{- end }}
 
-Your release is named {{ .Release.Name }}.
+2. IMPORTANT: Admiral requires configuration for all external services.
+   This chart validates required fields via values.schema.json.
+
+   Required configuration sections:
+   - admiral.config.database    (PostgreSQL connection)
+   - admiral.config.auth        (OIDC provider settings)
+   - admiral.config.storage     (S3-compatible storage)  
+   - admiral.config.temporal    (Temporal workflow engine)
+
+3. For a complete demo environment with all dependencies pre-configured:
+   helm install admiral-demo ./deploy/helm/admiral-demo
+
+4. Example production installation:
+   helm install admiral ./deploy/helm/admiral-server -f production-values.yaml
+
+For more information, visit: https://github.com/mberwanger/admiral

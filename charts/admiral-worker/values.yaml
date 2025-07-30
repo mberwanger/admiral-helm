@@ -1,13 +1,13 @@
-# Default values for admiral-controller
+# Default values for admiral-worker
 # This is a YAML-formatted file.
 
-# Admiral controller configuration
+# Admiral worker configuration
 admiral:
-  # image configuration for Admiral controller
+  # image configuration for Admiral worker
   image:
-    # repository is the Admiral controller image repository
-    repository: ghcr.io/mberwanger/admiral-controller
-    # tag is the Admiral controller image tag (avoid 'latest' for production)
+    # repository is the Admiral worker image repository
+    repository: ghcr.io/mberwanger/admiral-worker
+    # tag is the Admiral worker image tag (avoid 'latest' for production)
     tag: "v0.1.0"
     # pullPolicy is the image pull policy
     pullPolicy: IfNotPresent
@@ -15,31 +15,33 @@ admiral:
   # imagePullSecrets for private registries
   imagePullSecrets: []
 
-  # replicaCount is the number of Admiral controller replicas
+  # replicaCount is the number of Admiral worker replicas
   replicaCount: 1
 
   # Application configuration
   config:
-    # Admiral server configuration (REQUIRED)
-    server:
-      # hostPort is the Admiral server address (REQUIRED)
-      hostPort: ""  # Example: "admiral-server.namespace.svc.cluster.local:8080"
-      # authToken is the authentication token for Admiral server (REQUIRED)
-      authToken: ""  # Will be stored in a Secret
+    # Temporal server configuration (REQUIRED)
+    temporal:
+      # hostPort is the Temporal server address (REQUIRED)
+      hostPort: ""  # Example: "temporal-server.namespace.svc.cluster.local:7233"
+      # namespace is the Temporal namespace
+      namespace: "admiral"
 
     # Worker configuration
     worker:
+      # role defines the type of work this worker processes (REQUIRED)
+      role: ""  # Example: "foo" or "bar"
+      # namespace is the Kubernetes namespace where workloads will be created
+      namespace: "default"
       # concurrency is the number of concurrent workers
       concurrency: 5
-      # namespace is the namespace where workloads will be created
-      namespace: "default"
 
     # Logging
     logging:
       level: "info"
       format: "json"
 
-  # resources configuration for Admiral controller pods
+  # resources configuration for Admiral worker pods
   resources:
     # limits define maximum resource usage
     limits:
@@ -123,7 +125,7 @@ metrics:
 rbac:
   # create specifies whether RBAC resources should be created
   create: true
-  # rules define the RBAC rules for the controller
+  # rules define the RBAC rules for the worker
   rules:
     - apiGroups: [""]
       resources: ["pods", "services", "configmaps", "secrets"]

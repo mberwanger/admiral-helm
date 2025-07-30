@@ -1,0 +1,27 @@
+# Test values for admiral-server chart
+# These values are used for linting and testing only
+
+admiral:
+  config:
+    server:
+      host: "0.0.0.0"
+      port: 8080
+    database:
+      host: "postgres.example.com"
+      port: 5432
+      name: "admiral"
+      user: "admiral"
+      password: "test-password"
+      sslMode: "disable"
+    auth:
+      oidcIssuer: "https://auth.example.com"
+      oidcClientId: "admiral-client"
+      oidcClientSecret: "test-secret"
+      sessionSecret: "test-session-secret"
+    storage:
+      type: "s3"
+      manifestsBucket: "admiral-manifests"
+      revisionsBucket: "admiral-revisions"
+    temporal:
+      hostPort: "temporal.example.com:7233"
+      namespace: "admiral"

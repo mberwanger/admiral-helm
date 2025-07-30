@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "admiral-server.name" -}}
+{{- define "admiral-worker.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "admiral-server.fullname" -}}
+{{- define "admiral-worker.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -26,47 +26,47 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "admiral-server.chart" -}}
+{{- define "admiral-worker.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "admiral-server.labels" -}}
-helm.sh/chart: {{ include "admiral-server.chart" . }}
-{{ include "admiral-server.selectorLabels" . }}
+{{- define "admiral-worker.labels" -}}
+helm.sh/chart: {{ include "admiral-worker.chart" . }}
+{{ include "admiral-worker.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- with .Values.commonLabels }}
-{{- toYaml . }}
+{{ toYaml . }}
 {{- end }}
 {{- end }}
 
 {{/*
 Selector labels
 */}}
-{{- define "admiral-server.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "admiral-server.name" . }}
+{{- define "admiral-worker.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "admiral-worker.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "admiral-server.serviceAccountName" -}}
+{{- define "admiral-worker.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "admiral-server.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "admiral-worker.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
 
 {{/*
-Database connection string
+Create the namespace to use
 */}}
-{{- define "admiral-server.databaseUrl" -}}
-{{- printf "postgres://%s:%s@%s:%v/%s?sslmode=%s" .Values.admiral.config.database.user .Values.admiral.config.database.password .Values.admiral.config.database.host .Values.admiral.config.database.port .Values.admiral.config.database.name .Values.admiral.config.database.sslMode }}
+{{- define "admiral-worker.namespace" -}}
+{{- default .Release.Namespace .Values.namespaceOverride }}
 {{- end }}

@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "admiral-server.fullname" . }}-config
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "admiral-server.labels" . | nindent 4 }}
+data:
+  config.yaml: |
+    server:
+      listener:
+        address: {{ .Values.admiral.config.server.host | quote }}
+        port: {{ .Values.admiral.config.server.port }}
+    
+    database:
+      # Connection will be provided via environment variable
+      maxOpenConns: 25
+      maxIdleConns: 25
+      connMaxLifetime: "5m"
+    
+    auth:
+      oidcIssuer: {{ .Values.admiral.config.auth.oidcIssuer | quote }}
+      oidcClientId: {{ .Values.admiral.config.auth.oidcClientId | quote }}
+      # oidcClientSecret will be provided via environment variable
+      oidcScopes: ["openid", "profile", "email"]
+      # sessionSecret will be provided via environment variable
+      sessionMaxAge: "24h"
+    
+    storage:
+      type: {{ .Values.admiral.config.storage.type | quote }}
+      endpoint: {{ .Values.admiral.config.storage.endpoint | quote }}
+      manifestsBucket: {{ .Values.admiral.config.storage.manifestsBucket | quote }}
+      revisionsBucket: {{ .Values.admiral.config.storage.revisionsBucket | quote }}
+      # accessKey and secretKey will be provided via environment variables
+      useSSL: {{ .Values.admiral.config.storage.useSSL }}
+    
+    temporal:
+      hostPort: {{ .Values.admiral.config.temporal.hostPort | quote }}
+      namespace: {{ .Values.admiral.config.temporal.namespace | quote }}
+    
+    logging:
+      level: {{ .Values.admiral.config.logging.level | quote }}
+      format: {{ .Values.admiral.config.logging.format | quote }}

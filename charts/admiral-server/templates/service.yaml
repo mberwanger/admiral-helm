@@ -2,12 +2,13 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "admiral-server.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
   labels:
     {{- include "admiral-server.labels" . | nindent 4 }}
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ .Values.admiral.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
+    - port: {{ .Values.admiral.service.port }}
       targetPort: http
       protocol: TCP
       name: http
