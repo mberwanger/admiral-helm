@@ -1,2 +1,5 @@
 skip-path:
-  - charts/*/ci/test-values.yaml # Skip secret checks in CI test files
+  - charts/admiral-server/ci/test-values.yaml
+  - charts/admiral-server/templates/tests/test-connection.yaml
+  - charts/admiral-controller/ci/test-values.yaml
+  - charts/admiral-worker/ci/test-values.yaml
