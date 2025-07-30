@@ -25,7 +25,7 @@ jobs:
 
       - name: Run Checkov against charts
         id: checkov
-        uses: bridgecrewio/checkov-action@e6ad5502b88da1771bb8821dc3b096bb03e33588 # v12.2972.0
+        uses: bridgecrewio/checkov-action@v12.2828.0 # v12.2828.0
         with:
           directory: charts/
           framework: helm
@@ -77,7 +77,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Run Trivy in config mode
-        uses: aquasecurity/trivy-action@808a4d3ce5a81336e92f92225a2b3c49ad95aac2 # v0.29.0
+        uses: aquasecurity/trivy-action@0.28.0 # v0.28.0
         with:
           scan-type: config
           scan-ref: charts/${{ matrix.chart }}
