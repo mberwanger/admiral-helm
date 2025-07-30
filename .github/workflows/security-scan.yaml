@@ -35,7 +35,6 @@ jobs:
           directory: charts/
           output_format: cli,sarif
           output_file_path: checkov-results.sarif
-          soft_fail: true
           skip_path: |
             charts/admiral-server/ci
             charts/admiral-controller/ci
@@ -82,4 +81,3 @@ jobs:
         uses: controlplaneio/kubesec-action@v0.0.2
         with:
           input: ${{ matrix.chart }}-rendered.yaml
-
