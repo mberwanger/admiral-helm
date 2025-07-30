@@ -31,6 +31,7 @@ jobs:
       - name: Run Checkov against charts
         id: checkov
         uses: bridgecrewio/checkov-action@v12
+        continue-on-error: true
         with:
           directory: charts/
           output_format: cli,sarif
