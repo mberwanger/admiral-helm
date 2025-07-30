@@ -1,0 +1,6 @@
+# Test values for admiral-controller CI
+admiral:
+  config:
+    server:
+      hostPort: "admiral-server.default.svc.cluster.local:8080"
+      authToken: "test-token-12345"

@@ -1,24 +1,62 @@
 apiVersion: v2
 name: admiral-controller
-description: Official Helm chart for Admiral Controller
+description: Official Helm chart for Admiral Controller - A Kubernetes controller that executes workloads managed by Admiral Server
 type: application
 version: 0.1.0
-appVersion: "0.1.0"
-# We want Kube 1.20+ so that on-demand runners can be cleaned up properly.
-# This uses the Job expiration fields that was introduced in 1.20. Without
-# this, thousands of dead pods will pollute the Kubernetes server.
-#
-# IMPORTANT: the "-0" suffix on here is necessary for EKS and GKE to validate
-# since they use a modified version of Kubernetes.
+appVersion: "v0.1.0"
+
+# Kubernetes version requirements
 kubeVersion: ">= 1.20.0-0"
+
+# Project information
 home: https://admiral.io
 keywords:
   - admiral
   - admiral-controller
+  - kubernetes
+  - controller
+  - automation
+  - deployment
+
 sources:
+  - https://github.com/mberwanger/admiral
   - https://github.com/mberwanger/admiral-helm
+
 maintainers:
   - name: mberwanger
     email: mberwanger@protonmail.com
+
+# ArtifactHub annotations
 annotations:
   artifacthub.io/category: integration-delivery
+  artifacthub.io/operator: "false"
+  artifacthub.io/displayName: Admiral Controller
+  artifacthub.io/license: MIT
+  artifacthub.io/links: |
+    - name: Admiral Documentation
+      url: https://admiral.io/docs
+    - name: Source Code
+      url: https://github.com/mberwanger/admiral-helm
+  artifacthub.io/maintainers: |
+    - name: mberwanger
+      email: mberwanger@protonmail.com
+  artifacthub.io/readme: |
+    # Admiral Controller
+
+    Admiral Controller is a Kubernetes controller that connects to Admiral Server to execute workloads.
+
+    ## Features
+
+    - Secure connection to Admiral Server with authentication tokens
+    - RBAC-enabled Kubernetes workload management
+    - Comprehensive health monitoring and metrics
+    - Production-ready security defaults
+
+    ## Installation
+
+    ```bash
+    helm repo add admiral https://charts.admiral.io
+    helm install my-controller admiral/admiral-controller \
+      --set admiral.config.server.hostPort="admiral-server:8080" \
+      --set admiral.config.server.authToken="your-auth-token"
+    ```

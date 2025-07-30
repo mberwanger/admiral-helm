@@ -4,26 +4,166 @@ description: Official Helm chart for Admiral Server
 type: application
 version: 0.1.0
 appVersion: "0.1.0"
-# We want Kube 1.20+ so that on-demand runners can be cleaned up properly.
-# This uses the Job expiration fields that was introduced in 1.20. Without
-# this, thousands of dead pods will pollute the Kubernetes server.
-#
-# IMPORTANT: the "-0" suffix on here is necessary for EKS and GKE to validate
-# since they use a modified version of Kubernetes.
+
+# Kubernetes version requirements
 kubeVersion: ">= 1.20.0-0"
+
+# Project information
 home: https://admiral.io
 keywords:
-  - application-management
-  - infrastructure-as-code
+  - admiral
+  - admiral-controller
   - kubernetes
-  - terraform
+  - controller
+  - automation
   - deployment
+
 sources:
   - https://github.com/mberwanger/admiral
   - https://github.com/mberwanger/admiral-helm
+
 maintainers:
   - name: mberwanger
     email: mberwanger@protonmail.com
+
 annotations:
   artifacthub.io/category: integration-delivery
-  org.opencontainers.image.source: https://github.com/mberwanger/admiral-server
+  artifacthub.io/displayName: Admiral Server
+  artifacthub.io/license: MIT
+  artifacthub.io/operator: "false"
+  artifacthub.io/links: |
+    - name: Admiral Documentation
+      url: https://admiral.io/docs
+    - name: Source Code
+      url: https://github.com/mberwanger/admiral-helm
+    - name: Admiral Server Repository
+      url: https://github.com/mberwanger/admiral
+  artifacthub.io/maintainers: |
+    - name: mberwanger
+      email: mberwanger@protonmail.com
+  artifacthub.io/readme: |
+    # Admiral Server
+
+    Admiral Server is the central orchestration platform that manages and coordinates deployments across multiple Kubernetes clusters. It provides a web interface, API, and integration with various deployment workflows.
+
+    ## Features
+
+    - **Multi-cluster Management**: Deploy and manage applications across multiple Kubernetes clusters
+    - **Web Interface**: Modern dashboard for deployment management
+    - **API-First**: RESTful and GRPC API
+    - **OIDC Authentication**: Secure authentication with OpenID Connect providers
+    - **Production-Ready**: Enterprise security defaults and best practices
+
+    ## Prerequisites
+
+    Before installing Admiral Server, ensure you have:
+
+    - **PostgreSQL Database**: For persistent storage of deployment data
+    - **OIDC Provider**: For user authentication (e.g., Auth0, Keycloak, etc.)
+    - **S3-Compatible storage**: For storing manifests and revisions (AWS S3, MinIO, etc.)
+    - **Temporal Server**: For workflow execution and reliability
+
+    ## Installation
+
+    ### Basic Installation
+
+    ```bash
+    helm repo add admiral https://charts.admiral.io
+    helm install admiral-server admiral/admiral-server \
+      --set admiral.config.database.host="postgres.example.com" \
+      --set admiral.config.database.user="admiral" \
+      --set admiral.config.database.password="your-db-password" \
+      --set admiral.config.auth.oidcIssuer="https://auth.example.com" \
+      --set admiral.config.auth.oidcClientId="admiral-client" \
+      --set admiral.config.auth.oidcClientSecret="your-client-secret" \
+      --set admiral.config.auth.sessionSecret="your-session-secret" \
+      --set admiral.config.storage.manifestsBucket="admiral-manifests" \
+      --set admiral.config.storage.revisionsBucket="admiral-revisions" \
+      --set admiral.config.temporal.hostPort="temporal.example.com:7233"
+    ```
+
+    ### Using Values File
+
+    Create a `values.yaml` file:
+
+    ```yaml
+    admiral:
+      config:
+        database:
+          host: "postgres.example.com"
+          user: "admiral"
+          password: "your-db-password"
+        auth:
+          oidcIssuer: "https://auth.example.com"
+          oidcClientId: "admiral-client"
+          oidcClientSecret: "your-client-secret"
+          sessionSecret: "your-session-secret"
+        storage:
+          manifestsBucket: "admiral-manifests"
+          revisionsBucket: "admiral-revisions"
+          accessKey: "your-s3-access-key"  # Optional for IAM roles
+          secretKey: "your-s3-secret-key"  # Optional for IAM roles
+        temporal:
+          hostPort: "temporal.example.com:7233"
+      
+      ingress:
+        enabled: true
+        className: "nginx"
+        hosts:
+          - host: admiral.example.com
+            paths:
+              - path: /
+                pathType: Prefix
+        tls:
+          - secretName: admiral-tls
+            hosts:
+              - admiral.example.com
+    ```
+
+    Then install:
+
+    ```bash
+    helm install admiral-server admiral/admiral-server -f values.yaml
+    ```
+
+    ## Configuration
+
+    ### Required Configuration
+
+    All the following values must be provided:
+
+    - `admiral.config.database.*`: PostgreSQL connection details
+    - `admiral.config.auth.oidcIssuer`: Your OIDC provider URL
+    - `admiral.config.auth.oidcClientId`: OIDC client ID
+    - `admiral.config.auth.oidcClientSecret`: OIDC client secret
+    - `admiral.config.auth.sessionSecret`: Session encryption secret
+    - `admiral.config.storage.manifestsBucket`: S3 bucket for manifests
+    - `admiral.config.storage.revisionsBucket`: S3 bucket for revisions
+    - `admiral.config.temporal.hostPort`: Temporal server address
+
+    ### Security Features
+
+    This chart includes production-ready security defaults:
+
+    - Runs as non-root user (UID 65534)
+    - Read-only root filesystem
+    - Dropped ALL capabilities
+    - Security contexts with seccomp profiles
+    - Network policies (when enabled)
+    - Resource limits and requests
+
+    ## Upgrading
+
+    To upgrade Admiral Server:
+
+    ```bash
+    helm upgrade admiral-server admiral/admiral-server -f values.yaml
+    ```
+
+    ## Uninstallation
+
+    ```bash
+    helm delete admiral-server
+    ```
+
+    **Note**: This will not delete the PostgreSQL database or S3 data. Clean up external resources manually if needed.

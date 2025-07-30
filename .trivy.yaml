@@ -6,7 +6,7 @@ skip-dirs:
 
 misconfiguration:
   helm:
-    # Set values for Helm chart rendering
+    # Set values for admiral-server Helm chart rendering
     set-string:
       - "admiral.config.database.host=postgres.example.com"
       - "admiral.config.database.user=admiral"
@@ -18,3 +18,6 @@ misconfiguration:
       - "admiral.config.storage.manifestsBucket=manifests"
       - "admiral.config.storage.revisionsBucket=revisions"
       - "admiral.config.temporal.hostPort=temporal:7233"
+      # Set values for admiral-controller Helm chart rendering
+      - "admiral.config.server.hostPort=admiral-server:8080"
+      - "admiral.config.server.authToken=test-token"

@@ -1,53 +1,194 @@
-# Admiral Agent Helm Chart
+# admiral-controller
 
-This repository contains the official Admiral Agent Helm chart for installing
-and configuring Admiral on Kubernetes.
+Official Helm chart for Admiral Controller
+
+![Version: {{ .Version }}](https://img.shields.io/badge/Version-{{ .Version }}-informational?style=flat-square) ![Type: {{ .Type }}](https://img.shields.io/badge/Type-{{ .Type }}-informational?style=flat-square) ![AppVersion: {{ .AppVersion }}](https://img.shields.io/badge/AppVersion-{{ .AppVersion }}-informational?style=flat-square)
+
+## Introduction
+
+This chart deploys Admiral Controller on a Kubernetes cluster using the Helm package manager.
+
+Admiral Controller is a Kubernetes controller that connects to Admiral Server to execute workloads across multiple clusters. It acts as the execution agent that receives deployment instructions from Admiral Server and manages the actual Kubernetes resources.
 
 ## Prerequisites
 
-To use the charts here, [Helm](https://helm.sh/) must be installed in your
-Kubernetes cluster. Setting up Kubernetes and Helm and is outside the scope
-of this README. Please refer to the Kubernetes and Helm documentation.
+- Kubernetes 1.20+
+- Helm 3.2.0+
+- Admiral Server instance (accessible via network)
+- Authentication token from Admiral Server
 
-The versions required are:
+## Installing the Chart
 
-  * **Helm 3.0+** - This is the earliest version of Helm tested. It is possible
-    it works with earlier versions but this chart is untested for those versions.
-  * **Kubernetes 1.20+** - This is the earliest version of Kubernetes tested.
-    It is possible that this chart works with earlier versions but it is
-    untested.
+To install the chart with the release name `admiral-controller`:
 
-In addition to Helm, you must also have a:
-
-  * **Admiral Token**
-
-## Usage
-
-### Install the Helm Chart
-
-Before installing the chart, you must create two Kubernetes secrets:
-
-To use the charts, you must add the Admiral Helm Chart repository.
-
-```shell
+```bash
 helm repo add admiral https://charts.admiral.io
 helm repo update
-helm install admiral-controller admiral/admiral-controller --set config.token='ADMIRAL_TOKEN'
+helm install admiral-controller admiral/admiral-controller \
+  --set admiral.config.server.hostPort="admiral-server.default.svc.cluster.local:8080" \
+  --set admiral.config.server.authToken="your-auth-token"
 ```
 
-### Upgrade existing Helm Chart
+The command deploys Admiral Controller on the Kubernetes cluster in the default configuration. The [Parameters](#parameters) section lists the parameters that can be configured during installation.
+
+> **Tip**: List all releases using `helm list`
+
+### Upgrading existing Helm Chart
 
 ```
 helm repo update
 helm upgrade admiral-controller admiral/admiral-controller --reuse-values
 ```
 
-## Values
+## Uninstalling the Chart
 
-### General parameters
+To uninstall the `admiral-controller` deployment:
+
+```bash
+helm uninstall admiral-controller
+```
+
+The command removes all the Kubernetes components associated with the chart and deletes the release.
+
+## Parameters
+
+## Values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 {{- range .Values }}
 | {{ .Key }} | {{ .Type }} | {{ if .Default }}{{ .Default }}{{ else }}{{ .AutoDefault }}{{ end }} | {{ if .Description }}{{ .Description }}{{ else }}{{ .AutoDescription }}{{ end }} |
 {{- end }}
+
+### Required Configuration
+
+All external service configurations are **required**. The chart includes schema validation to enforce this:
+
+#### Admiral Server Configuration
+
+Admiral Controller requires connection details to Admiral Server:
+
+```yaml
+admiral:
+  config:
+    server:
+      hostPort: "admiral-server.default.svc.cluster.local:8080"
+      authToken: "your-authentication-token"
+```
+
+#### Worker Configuration
+
+Configure the controller's worker behavior:
+
+```yaml
+admiral:
+  config:
+    worker:
+      concurrency: 5
+      namespace: "default"
+```
+
+## Configuration and Installation Details
+
+### Schema Validation
+
+This chart includes `values.schema.json` to validate required configuration fields. If required fields are missing, Helm will reject the installation with a clear error message.
+
+### Security Context
+
+The chart runs with a restrictive security context by default:
+
+- Non-root user (UID 65534)
+- Read-only root filesystem
+- Dropped ALL capabilities
+- Seccomp profiles enabled
+
+### RBAC
+
+Admiral Controller requires cluster-level permissions to manage Kubernetes resources:
+
+```yaml
+rbac:
+  create: true
+  rules:
+    - apiGroups: [""]
+      resources: ["pods", "services", "configmaps", "secrets"]
+      verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+    - apiGroups: ["apps"]
+      resources: ["deployments", "replicasets"]
+      verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+```
+
+### Resource Management
+
+Configure resource limits and requests:
+
+```yaml
+admiral:
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+```
+
+### High Availability
+
+For production deployments, consider:
+
+```yaml
+admiral:
+  replicaCount: 2
+
+podDisruptionBudget:
+  enabled: true
+  maxUnavailable: 1
+
+admiral:
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: admiral-controller
+            topologyKey: kubernetes.io/hostname
+```
+
+### Monitoring
+
+Admiral Controller exposes metrics for monitoring:
+
+```yaml
+metrics:
+  enabled: true
+  port: 9090
+  path: /metrics
+```
+
+Health checks are available at:
+- `/healthz` - General health status
+- `/readyz` - Readiness probe
+
+https://admiral.io
+
+## Maintainers
+
+{{- range .Maintainers }}
+| Name | Email | Url |
+| ---- | ------ | --- |
+| {{ .Name }} | {{ if .Email }}<{{ .Email }}>{{ end }} | {{ if .Url }}{{ .Url }}{{ end }} |
+{{- end }}
+
+## Source Code
+
+{{- range .Sources }}
+* <{{ . }}>
+{{- end }}
+
+## Requirements
+
+Kubernetes: `{{ .KubeVersion }}`

@@ -1,80 +1,170 @@
-# Default values for admiral-controller.
+# Default values for admiral-controller
 # This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
 
-replicaCount: 1
+# Admiral controller configuration
+admiral:
+  # image configuration for Admiral controller
+  image:
+    # repository is the Admiral controller image repository
+    repository: ghcr.io/mberwanger/admiral-controller
+    # tag is the Admiral controller image tag (avoid 'latest' for production)
+    tag: "v0.1.0"
+    # pullPolicy is the image pull policy
+    pullPolicy: IfNotPresent
 
-image:
-  repository: ghcr.io/mberwanger/admiral-controller
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  # imagePullSecrets for private registries
+  imagePullSecrets: []
 
-imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
+  # replicaCount is the number of Admiral controller replicas
+  replicaCount: 1
 
-config: {}
-  # secretName: "token"
-  # token: "add token"
+  # Application configuration
+  config:
+    # Admiral server configuration (REQUIRED)
+    server:
+      # hostPort is the Admiral server address (REQUIRED)
+      hostPort: ""  # Example: "admiral-server.namespace.svc.cluster.local:8080"
+      # authToken is the authentication token for Admiral server (REQUIRED)
+      authToken: ""  # Will be stored in a Secret
 
+    # Worker configuration
+    worker:
+      # concurrency is the number of concurrent workers
+      concurrency: 5
+      # namespace is the namespace where workloads will be created
+      namespace: "default"
+
+    # Logging
+    logging:
+      level: "info"
+      format: "json"
+
+  # resources configuration for Admiral controller pods
+  resources:
+    # limits define maximum resource usage
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    # requests define guaranteed resource allocation
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+  # nodeSelector for pod assignment
+  nodeSelector: {}
+  # tolerations for pod assignment
+  tolerations: []
+  # affinity for pod assignment
+  affinity: {}
+
+# ServiceAccount configuration
 serviceAccount:
-  # Specifies whether a service account should be created
   create: true
-  # Automatically mount a ServiceAccount's API credentials?
-  automount: true
-  # Annotations to add to the service account
   annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
   name: ""
 
+# Pod Security Context
+podSecurityContext:
+  fsGroup: 65534
+  runAsNonRoot: true
+  runAsUser: 65534
+  runAsGroup: 65534
+  seccompProfile:
+    type: RuntimeDefault
+
+# Security Context
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 65534
+  runAsGroup: 65534
+  seccompProfile:
+    type: RuntimeDefault
+
+# Health Probes
+livenessProbe:
+  enabled: true
+  path: /healthz
+  initialDelaySeconds: 30
+  periodSeconds: 30
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 3
+
+readinessProbe:
+  enabled: true
+  path: /readyz
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 3
+
+startupProbe:
+  enabled: true
+  path: /healthz
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 30
+
+# Metrics and monitoring
+metrics:
+  enabled: true
+  port: 9090
+  path: /metrics
+
+# RBAC configuration
+rbac:
+  # create specifies whether RBAC resources should be created
+  create: true
+  # rules define the RBAC rules for the controller
+  rules:
+    - apiGroups: [""]
+      resources: ["pods", "services", "configmaps", "secrets"]
+      verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+    - apiGroups: ["apps"]
+      resources: ["deployments", "replicasets"]
+      verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+    - apiGroups: ["batch"]
+      resources: ["jobs", "cronjobs"]
+      verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+# Network Policy
+networkPolicy:
+  enabled: false
+  ingress:
+    namespaceSelector: {}
+    podSelector: {}
+    customRules: []
+  egress:
+    customRules: []
+
+# Pod Disruption Budget
+podDisruptionBudget:
+  enabled: false
+  # minAvailable: 1
+  maxUnavailable: 1
+
+# Additional configurations
 podAnnotations: {}
 podLabels: {}
+priorityClassName: ""
+initContainers: []
+sidecars: []
+extraEnvVars: []
+extraVolumes: []
+extraVolumeMounts: []
+extraManifests: []
 
-podSecurityContext: {}
-  # fsGroup: 2000
+# Common labels and annotations
+commonLabels: {}
+commonAnnotations: {}
 
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
-
-service:
-  type: ClusterIP
-  port: 80
-
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
-
-
-# Additional volumes on the output Deployment definition.
-volumes: []
-# - name: foo
-#   secret:
-#     secretName: mysecret
-#     optional: false
-
-# Additional volumeMounts on the output Deployment definition.
-volumeMounts: []
-# - name: foo
-#   mountPath: "/etc/foo"
-#   readOnly: true
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
+# Global values (for sub-charts compatibility)
+global: {}
