@@ -26,7 +26,7 @@ jobs:
       - name: List files that will be scanned
         run: |
           echo "Files Checkov will analyze:"
-          find charts/ -name "*.yaml" -o -name "*.yml" -o -name "*.json" | grep -v "/ci/" | sort
+          find charts/ -name "*.yaml" -o -name "*.yml" -o -name "*.json" | sort
 
       - name: Run Checkov against charts
         id: checkov
@@ -35,10 +35,6 @@ jobs:
           directory: charts/
           output_format: cli,sarif
           output_file_path: checkov-results.sarif
-          skip_path: |
-            charts/admiral-server/ci
-            charts/admiral-controller/ci
-            charts/admiral-worker/ci
 
       - name: Show SARIF results summary
         if: always()
@@ -75,7 +71,11 @@ jobs:
 
       - name: Template Helm chart
         run: |
-          helm template ${{ matrix.chart }} ./charts/${{ matrix.chart }} > ${{ matrix.chart }}-rendered.yaml
+          if [ -f "./charts/${{ matrix.chart }}/ci/test-values.yaml" ]; then
+            helm template ${{ matrix.chart }} ./charts/${{ matrix.chart }} -f ./charts/${{ matrix.chart }}/ci/test-values.yaml > ${{ matrix.chart }}-rendered.yaml
+          else
+            helm template ${{ matrix.chart }} ./charts/${{ matrix.chart }} > ${{ matrix.chart }}-rendered.yaml
+          fi
 
       - name: Run Kubesec scan
         uses: controlplaneio/kubesec-action@v0.0.2
