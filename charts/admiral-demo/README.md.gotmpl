@@ -1,0 +1,235 @@
+> :warning: This project is currently **under heavy development and is not considered stable yet**. This means that there may be bugs or unexpected behavior, and we don't recommend using it in production.
+
+{{ template "chart.header" . }}
+
+{{ template "chart.description" . }}
+
+{{ template "chart.versionBadge" . }}{{ template "chart.typeBadge" . }}{{ template "chart.appVersionBadge" . }}
+
+## Introduction
+
+This chart deploys a complete Admiral demo environment on a Kubernetes cluster using the Helm package manager. It includes all required dependencies pre-configured and ready to use:
+
+- **PostgreSQL**: Database for Admiral, Keycloak, and Temporal
+- **Keycloak**: OIDC authentication provider with pre-configured realm and users
+- **MinIO**: S3-compatible object storage for manifests and revisions
+- **Temporal**: Workflow orchestration engine
+- **Admiral Server**: Core Admiral application (when available)
+
+## ⚠️ WARNING: Demo Use Only
+
+This chart is configured with default passwords and settings suitable only for demonstration purposes. **DO NOT use this chart in production environments.**
+
+## Prerequisites
+
+- Kubernetes 1.20+
+- Helm 3.2.0+
+- Ingress controller (optional, for external access)
+
+## Installing the Chart
+
+To install the chart with the release name `admiral-demo`:
+
+```bash
+helm repo add admiral https://charts.admiral.io
+helm repo update
+helm install admiral-demo admiral/{{ template "chart.name" . }}
+```
+
+The command deploys the complete Admiral demo stack on the Kubernetes cluster. The installation may take a few minutes as all services initialize.
+
+### Quick Start After Installation
+
+1. **Get the Admiral URL**:
+   ```bash
+   kubectl get ingress -n admiral-demo
+   ```
+
+2. **Default Demo Users**:
+   - Username: `john.doe` / Password: `password123`
+   - Username: `jane.smith` / Password: `password123`
+   - Username: `bob.wilson` / Password: `password123`
+
+3. **Access Services Directly** (port-forward):
+   ```bash
+   # Admiral Server
+   kubectl port-forward -n admiral-demo svc/admiral-demo-admiral-server 8080:8080
+
+   # Keycloak Admin Console
+   kubectl port-forward -n admiral-demo svc/admiral-demo-keycloak 8081:8080
+
+   # MinIO Console
+   kubectl port-forward -n admiral-demo svc/admiral-demo-minio 9000:9000
+   ```
+
+### Upgrading existing Helm Chart
+
+```bash
+helm repo update
+helm upgrade admiral-demo admiral/admiral-demo --reuse-values
+```
+
+## Uninstalling the Chart
+
+To uninstall the `admiral-demo` deployment:
+
+```bash
+helm uninstall admiral-demo
+```
+
+The command removes all the Kubernetes components associated with the chart and deletes the release.
+
+## Parameters
+
+{{ template "chart.valuesSection" . }}
+
+## Configuration Examples
+
+### Expose Admiral with Ingress
+
+```yaml
+admiral-server:
+  ingress:
+    enabled: true
+    className: "nginx"
+    hosts:
+      - host: admiral.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: admiral-tls
+        hosts:
+          - admiral.example.com
+```
+
+### Enable Persistence
+
+By default, persistence is disabled for easy testing. To enable:
+
+```yaml
+postgresql:
+  primary:
+    persistence:
+      enabled: true
+      size: 10Gi
+
+minio:
+  persistence:
+    enabled: true
+    size: 10Gi
+```
+
+### Customize Demo Users
+
+Add or modify users in the Keycloak configuration:
+
+```yaml
+keycloak:
+  keycloakConfigCli:
+    configuration:
+      master-realm.json: |
+        {
+          "realm": "master",
+          "users": [
+            {
+              "username": "custom.user",
+              "enabled": true,
+              "email": "custom@example.com",
+              "credentials": [{
+                "type": "password",
+                "value": "custompassword"
+              }]
+            }
+          ]
+        }
+```
+
+## Demo Environment Details
+
+### Service Endpoints
+
+| Service | Internal Endpoint | Default Credentials |
+|---------|------------------|-------------------|
+| Admiral Server | admiral-demo-admiral-server:8080 | Via Keycloak |
+| PostgreSQL | admiral-demo-postgresql:5432 | admiral / shipitnow |
+| Keycloak | admiral-demo-keycloak:8080 | admiral / shipitnow |
+| MinIO | admiral-demo-minio:9000 | admiral / shipitnow |
+| Temporal | admiral-demo-temporal-frontend:7233 | N/A |
+
+### Pre-configured Resources
+
+1. **Databases Created**:
+   - `admiral` - Main Admiral database
+   - `keycloak` - Keycloak configuration
+   - `temporal` - Temporal persistence
+   - `temporal_visibility` - Temporal visibility
+
+2. **MinIO Buckets**:
+   - `manifests` - Application manifests storage
+   - `revisions` - Deployment revisions storage
+
+3. **Keycloak Configuration**:
+   - Realm: `master`
+   - Client: `admiral` (with secret: `admiral-demo-client-secret`)
+   - Three demo users with full access
+
+4. **Temporal Namespaces**:
+   - `default` - 3 day retention
+   - `admiral` - 7 day retention
+
+## Troubleshooting
+
+### Services Not Starting
+
+Check pod status and logs:
+
+```bash
+kubectl get pods -n admiral-demo
+kubectl logs -n admiral-demo <pod-name>
+```
+
+### Database Connection Issues
+
+Ensure PostgreSQL is fully initialized:
+
+```bash
+kubectl logs -n admiral-demo admiral-demo-postgresql-0
+```
+
+### Keycloak Initialization
+
+Keycloak configuration happens after startup. Check the config-cli job:
+
+```bash
+kubectl logs -n admiral-demo -l job-name=admiral-demo-keycloak-config-cli
+```
+
+### Reset Demo Environment
+
+To completely reset the demo:
+
+```bash
+helm uninstall admiral-demo
+kubectl delete pvc -n admiral-demo --all
+helm install admiral-demo admiral/admiral-demo
+```
+
+## Security Notice
+
+This chart uses hardcoded demo credentials and is configured for ease of use, not security:
+
+- All services use simple passwords
+- No TLS between services
+- Minimal security policies
+- Public client secrets
+
+**Never expose this deployment to the internet or use in production.**
+
+{{ template "chart.homepage" . }}
+
+{{ template "chart.maintainersSection" . }}
+
+{{ template "chart.sourcesSection" . }}
+
+{{ template "chart.requirementsSection" . }}
