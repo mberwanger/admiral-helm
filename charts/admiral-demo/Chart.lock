@@ -1,24 +1,15 @@
 dependencies:
-- name: admiral-controller
-  repository: https://charts.admiral.io
-  version: 0.1.0
-- name: admiral-worker
-  repository: https://charts.admiral.io
-  version: 0.1.0
-- name: admiral-server
-  repository: https://charts.admiral.io
-  version: 0.1.0
-- name: keycloak
-  repository: https://charts.bitnami.com/bitnami
-  version: 24.8.1
-- name: temporal
-  repository: https://temporalio.github.io/helm-charts
-  version: 0.64.0
 - name: postgresql
   repository: https://charts.bitnami.com/bitnami
   version: 16.7.21
 - name: minio
   repository: https://charts.bitnami.com/bitnami
   version: 17.0.16
-digest: sha256:02988b8e20e1d8bfd695c59804ed07bdd04658c49601ddc3ca3fdd34f94f6753
-generated: "2025-07-30T18:09:27.809838-04:00"
+- name: keycloak
+  repository: https://charts.bitnami.com/bitnami
+  version: 24.8.1
+- name: temporal
+  repository: https://temporalio.github.io/helm-charts
+  version: 0.64.0
+digest: sha256:eea468d1f91914b16f9b61c51ae50cc53abda7d1bf95c4f0d4005108a068dcb9
+generated: "2025-07-31T11:55:20.088958-04:00"

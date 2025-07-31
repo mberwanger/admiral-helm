@@ -6,8 +6,8 @@ admiral-server:
   enabled: true
   replicaCount: 1
   image:
-    repository: admiral/server
-    tag: latest
+    repository: "admiral/server"
+    tag: "latest"
     pullPolicy: IfNotPresent
 
   service:
@@ -16,9 +16,9 @@ admiral-server:
 
   ingress:
     enabled: true
-    className: nginx
+    className: "nginx"
     hosts:
-      - host: admiral.admiral-demo.local
+      - host: "admiral.admiral-demo.local"
         paths:
           - path: /
             pathType: Prefix
@@ -27,53 +27,55 @@ admiral-server:
     database:
       host: "admiral-demo-postgresql"
       port: 5432
-      database: admiral
-      username: admiral
-      password: admiral-demo-password # Should be changed in production
+      database: "admiral"
+      username: "admiral"
+      password: "admiral-demo-password" # Should be changed in production
 
     keycloak:
       enabled: true
-      realm: admiral
-      clientId: admiral-server
-      clientSecret: admiral-demo-secret # Should be changed in production
-      authUrl: "http://admiral-demo-keycloak:8080/auth"
+      realm: "master"
+      clientId: "admiral-server"
+      clientSecret: "admiral-demo-client-secret" # Matches the client secret in realm config
+      authUrl: "http://admiral-demo-keycloak:8080"
 
     temporal:
       host: "admiral-demo-temporal-frontend"
       port: 7233
-      namespace: admiral
+      namespace: "admiral"
 
     s3:
       endpoint: "http://admiral-demo-minio:9000"
-      bucket: admiral-data
-      accessKey: minioadmin
-      secretKey: minioadmin # Should be changed in production
+      bucket: "admiral-data"
+      accessKey: "minioadmin"
+      secretKey: "minioadmin" # Should be changed in production
 
 # Admiral Worker configuration
 admiral-worker:
   enabled: true
   replicaCount: 2
   image:
-    repository: admiral/worker
-    tag: latest
+    repository: "admiral/worker"
+    tag: "latest"
     pullPolicy: IfNotPresent
 
   config:
     temporal:
       host: "admiral-demo-temporal-frontend"
       port: 7233
-      namespace: admiral
-      taskQueue: admiral-tasks
+      namespace: "admiral"
+      taskQueue: "admiral-tasks"
 
     s3:
       endpoint: "http://admiral-demo-minio:9000"
-      bucket: admiral-data
-      accessKey: minioadmin
-      secretKey: minioadmin # Should be changed in production
+      bucket: "admiral-data"
+      accessKey: "minioadmin"
+      secretKey: "minioadmin" # Should be changed in production
 
 # PostgreSQL configuration
 postgresql:
   enabled: true
+  # Force a static service name regardless of release name
+  fullnameOverride: "admiral-demo-postgresql"
   auth:
     username: "admiral"
     password: "shipitnow"
@@ -83,7 +85,7 @@ postgresql:
   primary:
     persistence:
       enabled: false
-      size: 5Gi
+      size: "5Gi"
 
     initdb:
       scriptsConfigMap: "admiral-demo-postgres-init"
@@ -105,9 +107,98 @@ keycloak:
     password: "shipitnow"
     database: "keycloak"
 
-  # extraEnvVars:
-  #   - name: KEYCLOAK_EXTRA_ARGS
-  #     value: "--import-realm"
+  keycloakConfigCli:
+    enabled: true
+    availabilityCheck:
+      timeout: 180s
+    configuration:
+      master-realm.json: |
+        {
+          "realm": "master",
+          "users": [
+            {
+              "username": "john.doe",
+              "enabled": true,
+              "emailVerified": true,
+              "firstName": "John",
+              "lastName": "Doe",  
+              "email": "john.doe@example.com",
+              "credentials": [
+                {
+                  "type": "password",
+                  "value": "password123",
+                  "temporary": false
+                }
+              ]
+            },
+            {
+              "username": "jane.smith",
+              "enabled": true,
+              "emailVerified": true,
+              "firstName": "Jane",
+              "lastName": "Smith",
+              "email": "jane.smith@example.com", 
+              "credentials": [
+                {
+                  "type": "password",
+                  "value": "password123",
+                  "temporary": false
+                }
+              ]
+            },
+            {
+              "username": "bob.wilson",
+              "enabled": true,
+              "emailVerified": true,
+              "firstName": "Bob",
+              "lastName": "Wilson",
+              "email": "bob.wilson@example.com",
+              "credentials": [
+                {
+                  "type": "password", 
+                  "value": "password123",
+                  "temporary": false
+                }
+              ]
+            }
+          ],
+          "clients": [
+            {
+              "clientId": "admiral",
+              "name": "Admiral",
+              "enabled": true,
+              "clientAuthenticatorType": "client-secret",
+              "secret": "admiral-demo-client-secret",
+              "redirectUris": [
+                "http://localhost:8080/*",
+                "http://admiral.admiral-demo.local/*",
+                "https://admiral.admiral-demo.local/*"
+              ],
+              "webOrigins": [
+                "http://localhost:8080",
+                "http://admiral.admiral-demo.local", 
+                "https://admiral.admiral-demo.local"
+              ],
+              "standardFlowEnabled": true,
+              "directAccessGrantsEnabled": true,
+              "publicClient": false,
+              "protocol": "openid-connect"
+            }
+          ]
+        }
+
+  # Longer timeouts to avoid restarts during heavy initialization
+  livenessProbe:
+    initialDelaySeconds: 120
+    periodSeconds: 30
+    timeoutSeconds: 10
+    failureThreshold: 6
+
+  readinessProbe:
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 12
 
 # Temporal configuration
 temporal:
@@ -120,7 +211,7 @@ temporal:
     enabled: false
 
   postgresql:
-    enabled: true
+    enabled: false
 
   elasticsearch:
     enabled: false
@@ -133,6 +224,7 @@ temporal:
 
   server:
     replicaCount: 1
+
     config:
       persistence:
         default:
@@ -157,6 +249,13 @@ temporal:
             password: "shipitnow"
             maxConns: 20
             maxConnLifetime: "1h"
+      namespaces:
+        create: true
+        namespace:
+          - name: "default"
+            retention: "3d"
+          - name: "admiral"
+            retention: "7d"
 
   admintools:
     enabled: false
@@ -184,7 +283,7 @@ minio:
 
   persistence:
     enabled: false
-    size: 5Gi
+    size: "5Gi"
 
   service:
     type: ClusterIP

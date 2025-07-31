@@ -2,9 +2,12 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Release.Name }}-postgres-init
+  name: admiral-demo-postgres-init
   labels:
     {{- include "admiral-demo.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-10"
 data:
   init.sql: |
     -- Enable uuid-ossp extension in the default database

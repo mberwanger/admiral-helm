@@ -1,205 +1,88 @@
-# Admiral Demo Helm Chart
+# Admiral Demo Chart
 
-A comprehensive Helm chart for quickly provisioning Admiral with all required dependencies in a Kubernetes cluster. This chart is designed for demo, testing, and evaluation purposes.
+A comprehensive demo environment for Admiral with all required dependencies.
 
-## Overview
+## ⚠️ Installation Notice
 
-The Admiral Demo chart packages together:
-- **Admiral Server** - The main Admiral API server
-- **Admiral Controller** - Kubernetes controller for Admiral resources
-- **Admiral Worker** - Background job workers
-- **PostgreSQL** - Primary database for Admiral and Temporal
-- **Keycloak** - Authentication and authorization server
-- **Temporal** - Workflow orchestration platform
-- **MinIO** - S3-compatible object storage
+**This installation will take approximately 5 minutes to complete.**
 
-## Prerequisites
+The chart provisions several complex components that require time to initialize:
+- PostgreSQL database with initialization scripts
+- Keycloak authentication server with user setup
+- Temporal workflow engine
+- MinIO object storage
+- Admiral server and worker components
 
-- Kubernetes 1.19+
-- Helm 3.2.0+
-- kubectl configured to access your cluster
-- Ingress controller (optional, for external access)
+Please be patient during the initial deployment. You can monitor progress with:
+```bash
+kubectl get pods -w
+```
 
 ## Quick Start
 
-1. Add the Bitnami repository (for dependencies):
 ```bash
-helm repo add bitnami https://charts.bitnami.com/bitnami
-helm repo add temporal https://temporalio.github.io/helm-charts
-helm repo update
+# Install with default values (uses release name as namespace prefix)  
+helm install my-admiral-demo .
+
+# Or specify a custom release name
+helm install my-custom-name .
 ```
 
-2. Install the chart:
-```bash
-helm install admiral-demo ./charts/admiral-demo --namespace admiral-demo --create-namespace
-```
+## What Gets Installed
 
-3. Wait for all pods to be ready:
-```bash
-kubectl get pods -n admiral-demo -w
-```
+- **PostgreSQL**: Shared database for all components
+- **Keycloak**: Authentication with pre-configured users and OIDC client
+- **Temporal**: Workflow orchestration engine  
+- **MinIO**: S3-compatible object storage
+- **Admiral Components**: Server and worker processes
 
-4. Access the services (if ingress is enabled):
-- Admiral Server: http://admiral.admiral-demo.local
-- Keycloak Admin: http://keycloak.admiral-demo.local
-- Temporal Web UI: http://temporal.admiral-demo.local
-- MinIO Console: http://minio-console.admiral-demo.local
+## Default Credentials
 
-## Configuration
+After installation completes (≈5 minutes), you'll have access to:
 
-### Key Configuration Options
+- **Keycloak Admin**: `admiral` / `shipitnow`
+- **Demo Users**: `john.doe@example.com`, `jane.smith@example.com`, `bob.wilson@example.com` (password: `password123`)
+- **PostgreSQL**: `admiral` / `shipitnow`
+- **MinIO**: `admiral` / `shipitnow`
 
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `admiral-server.enabled` | Enable Admiral Server | `true` |
-| `admiral-controller.enabled` | Enable Admiral Controller | `true` |
-| `admiral-worker.enabled` | Enable Admiral Worker | `true` |
-| `postgresql.enabled` | Enable PostgreSQL | `true` |
-| `keycloak.enabled` | Enable Keycloak | `true` |
-| `temporal.enabled` | Enable Temporal | `true` |
-| `minio.enabled` | Enable MinIO | `true` |
-
-### Default Credentials
-
-**⚠️ WARNING: Change these in production!**
-
-- **Keycloak Admin**: admin / admin-demo-password
-- **Demo User**: demo-user / demo-password
-- **PostgreSQL**: admiral / admiral-demo-password
-- **MinIO**: minioadmin / minioadmin
-
-### Custom Values
-
-Create a custom values file:
-```yaml
-# custom-values.yaml
-admiral-server:
-  replicaCount: 2
-  resources:
-    limits:
-      cpu: 1000m
-      memory: 1Gi
-
-postgresql:
-  auth:
-    password: my-secure-password
-
-keycloak:
-  auth:
-    adminPassword: my-secure-admin-password
-```
-
-Install with custom values:
-```bash
-helm install admiral-demo ./charts/admiral-demo -f custom-values.yaml
-```
-
-## Local Development
-
-### Using Port Forwarding
-
-If you don't have an ingress controller, you can use port forwarding:
+## Monitoring Installation Progress
 
 ```bash
-# Admiral Server
-kubectl port-forward -n admiral-demo svc/admiral-demo-admiral-server 8080:8080
+# Watch all pods come online
+kubectl get pods -w
 
-# Keycloak
-kubectl port-forward -n admiral-demo svc/admiral-demo-keycloak 8081:8080
+# Check specific component status
+kubectl get pods -l app.kubernetes.io/name=postgresql
+kubectl get pods -l app.kubernetes.io/name=keycloak  
+kubectl get pods -l app.kubernetes.io/name=temporal
+kubectl get pods -l app.kubernetes.io/name=minio
 
-# Temporal Web UI
-kubectl port-forward -n admiral-demo svc/admiral-demo-temporal-web 8082:8088
-
-# MinIO Console
-kubectl port-forward -n admiral-demo svc/admiral-demo-minio 9001:9001
-```
-
-### Using /etc/hosts
-
-Add these entries to your `/etc/hosts` file:
-```
-127.0.0.1 admiral.admiral-demo.local
-127.0.0.1 keycloak.admiral-demo.local
-127.0.0.1 temporal.admiral-demo.local
-127.0.0.1 minio.admiral-demo.local
-127.0.0.1 minio-console.admiral-demo.local
-```
-
-## Monitoring
-
-The chart includes optional monitoring configurations:
-
-```yaml
-postgresql:
-  metrics:
-    enabled: true
-    serviceMonitor:
-      enabled: true
-
-temporal:
-  prometheus:
-    enabled: true
-  grafana:
-    enabled: true
+# Check for any failed jobs
+kubectl get jobs
 ```
 
 ## Troubleshooting
 
-### Check Pod Status
-```bash
-kubectl get pods -n admiral-demo
-kubectl describe pod <pod-name> -n admiral-demo
-kubectl logs <pod-name> -n admiral-demo
-```
+If installation seems stuck:
+1. **Check pod status**: `kubectl get pods`
+2. **View logs**: `kubectl logs <pod-name>`
+3. **Check events**: `kubectl get events --sort-by='.firstTimestamp'`
 
-### Common Issues
+The most common issue is resource constraints - ensure your cluster has adequate CPU and memory.
 
-1. **Pods stuck in Pending**: Check PVC status and storage class availability
-2. **Init containers failing**: Check database connectivity and credentials
-3. **Ingress not working**: Verify ingress controller is installed and DNS is configured
+## Configuration
 
-### Database Connection Issues
-```bash
-# Test PostgreSQL connection
-kubectl run -it --rm --restart=Never postgres-client \
-  --image=postgres:15-alpine \
-  --namespace=admiral-demo \
-  -- psql -h admiral-demo-postgresql -U admiral -d admiral
-```
+See `values.yaml` for all configuration options. Key settings:
+
+- Database credentials and connection details
+- Keycloak authentication settings  
+- Resource limits and requests
+- Storage configuration
 
 ## Uninstall
 
-To remove the chart:
 ```bash
-helm uninstall admiral-demo -n admiral-demo
-kubectl delete namespace admiral-demo
+helm uninstall my-admiral-demo
 ```
 
-## Production Considerations
-
-This chart is designed for demo purposes. For production use:
-
-1. **Security**:
-   - Change all default passwords
-   - Enable TLS/SSL for all services
-   - Configure network policies
-   - Use external secret management
-
-2. **High Availability**:
-   - Increase replica counts
-   - Configure pod disruption budgets
-   - Enable database replication
-   - Use persistent storage with appropriate backup strategies
-
-3. **Resource Management**:
-   - Set appropriate resource requests and limits
-   - Configure horizontal pod autoscaling
-   - Monitor resource usage
-
-4. **External Dependencies**:
-   - Consider using managed services (RDS, managed Keycloak, etc.)
-   - Configure proper backup and disaster recovery
-
-## Support
-
-For issues and feature requests, please visit: https://github.com/martbhell/admiral-helm/issues
+For more information, visit: https://admiral.io/docs

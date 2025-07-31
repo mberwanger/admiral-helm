@@ -1,67 +1,46 @@
-Thank you for installing {{ .Chart.Name }}!
+Admiral Demo has been installed!
 
-Your Admiral demo environment is being deployed with the following components:
-{{- if .Values.postgresql.enabled }}
-- PostgreSQL database
-{{- end }}
-{{- if .Values.keycloak.enabled }}
-- Keycloak authentication server
-{{- end }}
-{{- if .Values.temporal.enabled }}
-- Temporal workflow orchestration
-{{- end }}
-{{- if .Values.minio.enabled }}
-- MinIO object storage
-{{- end }}
-{{- if index .Values "admiral-server" "enabled" }}
-- Admiral Server
-{{- end }}
-{{- if index .Values "admiral-controller" "enabled" }}
-- Admiral Controller
-{{- end }}
-{{- if index .Values "admiral-worker" "enabled" }}
-- Admiral Worker
-{{- end }}
+IMPORTANT: Database Configuration
+=================================
+This demo chart uses a shared PostgreSQL database for all components (Admiral, Keycloak, Temporal).
+The database service has a static name: admiral-demo-postgresql
 
-{{- if or (index .Values "admiral-server" "ingress" "enabled") .Values.keycloak.ingress.enabled .Values.temporal.web.ingress.enabled .Values.minio.ingress.enabled }}
+⚠️  LIMITATION: Due to the static database name, you cannot install multiple instances of this
+chart in the same namespace. Each installation requires its own namespace to avoid conflicts.
 
-Access URLs:
+
+1. Access Admiral:
 {{- if index .Values "admiral-server" "ingress" "enabled" }}
-  Admiral Server: http://{{ index .Values "admiral-server" "ingress" "hosts" 0 "host" }}
-{{- end }}
-{{- if and .Values.keycloak.enabled .Values.keycloak.ingress .Values.keycloak.ingress.enabled }}
-  Keycloak Admin: http://{{ .Values.keycloak.ingress.hostname }}
-    Username: {{ .Values.keycloak.auth.adminUser }}
-    Password: {{ .Values.keycloak.auth.adminPassword }}
-{{- end }}
-{{- if and .Values.temporal.enabled .Values.temporal.web.enabled .Values.temporal.web.ingress.enabled }}
-  Temporal Web UI: http://{{ index .Values.temporal.web.ingress.hosts 0 }}
-{{- end }}
-{{- if .Values.minio.enabled }}
-  MinIO Console: http://{{ .Release.Name }}-minio:9090 (or use port-forward)
-    Username: {{ .Values.minio.auth.rootUser }}
-    Password: {{ .Values.minio.auth.rootPassword }}
-{{- end }}
+   Admiral will be available at:
+   {{- range index .Values "admiral-server" "ingress" "hosts" }}
+   http{{ if index $.Values "admiral-server" "ingress" "tls" }}s{{ end }}://{{ .host }}
+   {{- end }}
+{{- else }}
+   Port-forward to access Admiral:
+   kubectl port-forward service/{{ include "admiral-demo.fullname" . }} 8080:{{ index .Values "admiral-server" "service" "port" }}
+   Then visit: http://localhost:8080
 {{- end }}
 
-Demo User Credentials:
-  Username: demo-user
-  Password: demo-password
+2. Default Credentials:
+   - PostgreSQL: {{ .Values.postgresql.auth.username }} / {{ .Values.postgresql.auth.password }}
+   - MinIO: {{ .Values.minio.auth.rootUser }} / {{ .Values.minio.auth.rootPassword }}
+   {{- if .Values.keycloak.enabled }}
+   - Keycloak Admin: {{ .Values.keycloak.auth.adminUser }} / {{ .Values.keycloak.auth.adminPassword }}
+   
+   Keycloak Demo Users in Master Realm (password: password123):
+   - john.doe@example.com (John Doe)
+   - jane.smith@example.com (Jane Smith)
+   - bob.wilson@example.com (Bob Wilson)
+   
+   OIDC Client Details:
+   - Client ID: admiral-server
+   - Client Secret: admiral-demo-client-secret
+   - Realm: master
+   {{- end }}
 
-To verify all pods are running:
-  kubectl get pods -n {{ .Release.Namespace }}
+3. Next Steps:
+   - Configure your OIDC provider (Keycloak)
+   - Create Admiral users and organizations
+   - Deploy your first application
 
-To check the status of the deployment:
-  helm status {{ .Release.Name }} -n {{ .Release.Namespace }}
-
-WARNING: This is a DEMO configuration with default passwords. 
-DO NOT use these settings in production!
-
-For production deployments:
-1. Change all default passwords
-2. Enable proper TLS/SSL certificates
-3. Configure appropriate resource limits
-4. Enable monitoring and logging
-5. Set up proper backup strategies
-
-For more information, visit: https://github.com/martbhell/admiral-helm
+For more information, visit: https://admiral.io/docs
